@@ -21,8 +21,19 @@ const validationSchemaAdmin = Yup.object().shape({
     .required('Obrigatório'),
 });
 
-export default function LoginScreen() {
+export default function LoginScreen({navigation}) {
   const [role, setRole] = useState("aluno");
+
+  const handleAlunoSubmit = (values, { setSubmitting }) => {
+    console.log(values);
+    navigation.navigate("HomeAluno");
+    setSubmitting(false);
+  };
+
+  const handleAdminSubmit = (values, { setSubmitting }) => {
+    console.log(values);
+    setSubmitting(false);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -40,9 +51,9 @@ export default function LoginScreen() {
             <Formik
             initialValues={{ matriculaCodigo: '' }}
             validationSchema={validationSchemaAluno}
-            onSubmit={values => console.log(values)}
+            onSubmit={handleAlunoSubmit}
             >
-            {({ handleChange, handleSubmit, values, errors, touched }) => (
+            {({ handleChange, handleSubmit, values, errors, touched, isValid, dirty }) => (
                 <View>
                 <CustomInput
                     value={values.matriculaCodigo}
@@ -51,11 +62,12 @@ export default function LoginScreen() {
                     required
                 />
                 {touched.matriculaCodigo && errors.matriculaCodigo && (
-                    <Text>{errors.matriculaCodigo}</Text>
+                    <Text style={styles.errorText}>{errors.matriculaCodigo}</Text>
                 )}
                 <CustomButton
                     title={"Confirmar"}
                     onPress={handleSubmit}
+                    disabled={!isValid || !dirty}
                 />
                 </View>
             )}
@@ -67,9 +79,9 @@ export default function LoginScreen() {
             <Formik
             initialValues={{ usuario: '', senha: '' }}
             validationSchema={validationSchemaAdmin}
-            onSubmit={values => console.log(values)}
+            onSubmit={handleAdminSubmit}
             >
-            {({ handleChange, handleSubmit, values, errors, touched }) => (
+            {({ handleChange, handleSubmit, values, errors, touched, isValid, dirty }) => (
                 <View>
                 <CustomInput
                     value={values.usuario}
@@ -78,7 +90,7 @@ export default function LoginScreen() {
                     required
                 />
                 {touched.usuario && errors.usuario && (
-                    <Text>{errors.usuario}</Text>
+                    <Text style={styles.errorText}>{errors.usuario}</Text>
                 )}
 
                 <CustomInput
@@ -89,11 +101,12 @@ export default function LoginScreen() {
                     required
                 />
                 {touched.senha && errors.senha && (
-                    <Text>{errors.senha}</Text>
+                    <Text style={styles.errorText}>{errors.senha}</Text>
                 )}
                 <CustomButton
                     title={"Confirmar"}
                     onPress={handleSubmit}
+                    disabled={!isValid || !dirty}
                 />
                 </View>
             )}
@@ -109,5 +122,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 4
   }
 });
