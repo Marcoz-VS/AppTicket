@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { Picker } from "@react-native-picker/picker";
 import CustomInput from "../components/CustomInput.jsx";
 import { useState } from "react";
+import CustomButton from "../components/CustomButton.jsx";
 
 const validationSchemaAluno = Yup.object().shape({
   matriculaCodigo: Yup.string()
@@ -25,7 +26,8 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>MerendaGo</Text>
+      <Text style={styles.title}>MerendaGo</Text>
+      <Text>Login</Text>
 
       <Picker selectedValue={role} onValueChange={(value) => setRole(value)}>
         <Picker.Item label="Aluno" value="aluno" />
@@ -33,59 +35,72 @@ export default function LoginScreen() {
       </Picker>
 
       {role === "aluno" ? (
-        <Formik
-          initialValues={{ matriculaCodigo: '' }}
-          validationSchema={validationSchemaAluno}
-          onSubmit={values => console.log(values)}
-        >
-          {({ handleChange, handleSubmit, values, errors, touched }) => (
-            <View>
-              <CustomInput
-                value={values.matriculaCodigo}
-                onChangeText={handleChange('matriculaCodigo')}
-                placeholder={'Coloque sua matrícula ou código (máx. 10 caracteres)'}
-                required
-              />
-              {touched.matriculaCodigo && errors.matriculaCodigo && (
-                <Text>{errors.matriculaCodigo}</Text>
-              )}
-              <Button onPress={handleSubmit} title="Enviar" />
-            </View>
-          )}
-        </Formik>
+        <>
+            <Text>Insira sua matricula ou código para se cadastrar neste aplicativo</Text>
+            <Formik
+            initialValues={{ matriculaCodigo: '' }}
+            validationSchema={validationSchemaAluno}
+            onSubmit={values => console.log(values)}
+            >
+            {({ handleChange, handleSubmit, values, errors, touched }) => (
+                <View>
+                <CustomInput
+                    value={values.matriculaCodigo}
+                    onChangeText={handleChange('matriculaCodigo')}
+                    placeholder={'Coloque sua matrícula ou código (máx. 10 caracteres)'}
+                    required
+                />
+                {touched.matriculaCodigo && errors.matriculaCodigo && (
+                    <Text>{errors.matriculaCodigo}</Text>
+                )}
+                <CustomButton
+                    title={"Confirmar"}
+                    onPress={handleSubmit}
+                />
+                </View>
+            )}
+            </Formik>
+        </>
       ) : (
-        <Formik
-          initialValues={{ usuario: '', senha: '' }}
-          validationSchema={validationSchemaAdmin}
-          onSubmit={values => console.log(values)}
-        >
-          {({ handleChange, handleSubmit, values, errors, touched }) => (
-            <View>
-              <CustomInput
-                value={values.usuario}
-                onChangeText={handleChange('usuario')}
-                placeholder={'Coloque o seu usuário (máx. 50 caracteres)'}
-                required
-              />
-              {touched.usuario && errors.usuario && (
-                <Text>{errors.usuario}</Text>
-              )}
+        <>
+            <Text>Insira seu usúario e senha para se cadastrar neste Aplicativo</Text>
+            <Formik
+            initialValues={{ usuario: '', senha: '' }}
+            validationSchema={validationSchemaAdmin}
+            onSubmit={values => console.log(values)}
+            >
+            {({ handleChange, handleSubmit, values, errors, touched }) => (
+                <View>
+                <CustomInput
+                    value={values.usuario}
+                    onChangeText={handleChange('usuario')}
+                    placeholder={'Coloque o seu usuário (máx. 50 caracteres)'}
+                    required
+                />
+                {touched.usuario && errors.usuario && (
+                    <Text>{errors.usuario}</Text>
+                )}
 
-              <CustomInput
-                value={values.senha}
-                onChangeText={handleChange('senha')}
-                placeholder={'Coloque sua senha (min. 3 caracteres)'}
-                secureTextEntry
-                required
-              />
-              {touched.senha && errors.senha && (
-                <Text>{errors.senha}</Text>
-              )}
-              <Button onPress={handleSubmit} title="Enviar" />
-            </View>
-          )}
-        </Formik>
+                <CustomInput
+                    value={values.senha}
+                    onChangeText={handleChange('senha')}
+                    placeholder={'Coloque sua senha (min. 3 caracteres)'}
+                    secureTextEntry
+                    required
+                />
+                {touched.senha && errors.senha && (
+                    <Text>{errors.senha}</Text>
+                )}
+                <CustomButton
+                    title={"Confirmar"}
+                    onPress={handleSubmit}
+                />
+                </View>
+            )}
+            </Formik>
+        </>
       )}
+      <Text>Ao clicar em continuar, você concorda com os nossos Termos de Serviço e com a Política de Privacidade</Text>
     </SafeAreaView>
   );
 }
