@@ -9,7 +9,6 @@ export default function CustomInput({
   required,
   ...props
 }) {
-
   return (
     <View style={styles.container}>
       <TextInput
@@ -17,13 +16,11 @@ export default function CustomInput({
           styles.input,
           multiline && styles.multiline,
           required && !value && styles.errorInput,
-          theme === 'dark' && styles.darkInput,
           style,
         ]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={theme === 'dark' ? "#999" : "#ccc"}
         multiline={multiline}
         {...props}
       />

@@ -1,46 +1,98 @@
-import { SafeAreaView, StyleSheet, TextInput } from "react-native";
+import { SafeAreaView, StyleSheet, View, Text, Button } from "react-native";
 import { Formik } from "formik";
 import * as Yup from 'yup';
+import { Picker } from "@react-native-picker/picker";
 import CustomInput from "../components/CustomInput.jsx";
+import { useState } from "react";
 
-const validationSchema = Yup.object().shape({
-    matricula: Yup.number().max(10, 'A matricula deve ter 10 numeros'),
-    codigo: Yup.number().max(10, 'O codigo deve ter 8 numeros'),
-    usuario: Yup.string().max(50, 'Usúario deve ter no máximo 50 caracteres'),
-    senha: Yup.number().min(3, 'A senha não deve ter menos de 3 caracteres')
+const validationSchemaAluno = Yup.object().shape({
+  matriculaCodigo: Yup.string()
+    .max(10, 'A matrícula ou código deve ter no máximo 10 caracteres')
+    .required('Obrigatório'),
+});
+
+const validationSchemaAdmin = Yup.object().shape({
+  usuario: Yup.string()
+    .max(50, 'Usuário deve ter no máximo 50 caracteres')
+    .required('Obrigatório'),
+  senha: Yup.string()
+    .min(3, 'A senha não deve ter menos de 3 caracteres')
+    .required('Obrigatório'),
 });
 
 export default function LoginScreen() {
+  const [role, setRole] = useState("aluno");
 
-    return(
-        <SafeAreaView style={styles.container}>
-            <Text>
-            MerendaGo
-            </Text>
-            <Formik
-                initialValues={{matricula: '', codigo: '', usuario: '', senha: ''}}
-                validationSchema={validationSchema}
-                onSubmit={values => console.log(values)}
-            >
-            {({handleChange, handleSubmit, values, errors, touched}) => (
-                <View>
-                    <CustomInput
-                        value={values.matricula}
-                        onChangeText={handleChange('matricula')}
-                        placeholder={'coloque a sua matricula (máx. 10 caracteres'}
-                        required
-                    />
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text>MerendaGo</Text>
 
-                    <Button onPress={handleSubmit} title="Submit" />
-                </View>
-            )}
-            </Formik>
-        </SafeAreaView>
-    );
+      <Picker selectedValue={role} onValueChange={(value) => setRole(value)}>
+        <Picker.Item label="Aluno" value="aluno" />
+        <Picker.Item label="Admin" value="admin" />
+      </Picker>
+
+      {role === "aluno" ? (
+        <Formik
+          initialValues={{ matriculaCodigo: '' }}
+          validationSchema={validationSchemaAluno}
+          onSubmit={values => console.log(values)}
+        >
+          {({ handleChange, handleSubmit, values, errors, touched }) => (
+            <View>
+              <CustomInput
+                value={values.matriculaCodigo}
+                onChangeText={handleChange('matriculaCodigo')}
+                placeholder={'Coloque sua matrícula ou código (máx. 10 caracteres)'}
+                required
+              />
+              {touched.matriculaCodigo && errors.matriculaCodigo && (
+                <Text>{errors.matriculaCodigo}</Text>
+              )}
+              <Button onPress={handleSubmit} title="Enviar" />
+            </View>
+          )}
+        </Formik>
+      ) : (
+        <Formik
+          initialValues={{ usuario: '', senha: '' }}
+          validationSchema={validationSchemaAdmin}
+          onSubmit={values => console.log(values)}
+        >
+          {({ handleChange, handleSubmit, values, errors, touched }) => (
+            <View>
+              <CustomInput
+                value={values.usuario}
+                onChangeText={handleChange('usuario')}
+                placeholder={'Coloque o seu usuário (máx. 50 caracteres)'}
+                required
+              />
+              {touched.usuario && errors.usuario && (
+                <Text>{errors.usuario}</Text>
+              )}
+
+              <CustomInput
+                value={values.senha}
+                onChangeText={handleChange('senha')}
+                placeholder={'Coloque sua senha (min. 3 caracteres)'}
+                secureTextEntry
+                required
+              />
+              {touched.senha && errors.senha && (
+                <Text>{errors.senha}</Text>
+              )}
+              <Button onPress={handleSubmit} title="Enviar" />
+            </View>
+          )}
+        </Formik>
+      )}
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    }
+  container: {
+    flex: 1,
+    padding: 16
+  }
 });
