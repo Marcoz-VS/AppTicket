@@ -33,10 +33,10 @@ export default function LoginScreen({navigation}) {
       alert("Matrícula ou código não encontrado. Por favor, verifique e tente novamente.");
   }};
 
-  const handleAdminSubmit = (values, { setSubmitting }) => {
+  const handleAdminSubmit = (values) => {
     const adminEncontrado = database.admins.find(admin => admin.senha === values.senha && admin.usuario === values.usuario);
     if (adminEncontrado) {
-      navigation.navigate("HomeAdminScreen", { aluno: adminEncontrado });
+      navigation.navigate("HomeAdminScreen", { admin: adminEncontrado });
     } else {
       alert("Matrícula ou código não encontrado. Por favor, verifique e tente novamente.");
   }};
@@ -46,7 +46,7 @@ export default function LoginScreen({navigation}) {
       <Text style={styles.title}>MerendaGo</Text>
       <Text>Login</Text>
 
-      <Picker selectedValue={role} onValueChange={(value) => setRole(value)}>
+      <Picker style={styles.picker} selectedValue={role} onValueChange={(value) => setRole(value)}>
         <Picker.Item label="Aluno" value="aluno" />
         <Picker.Item label="Admin" value="admin" />
       </Picker>
@@ -87,7 +87,7 @@ export default function LoginScreen({navigation}) {
             validationSchema={validationSchemaAdmin}
             onSubmit={handleAdminSubmit}
             >
-            {({ handleChange, handleAdminSubmit, values, errors, touched, isValid, dirty }) => (
+            {({ handleChange, handleSubmit, values, errors, touched, isValid, dirty }) => (
                 <View>
                 <CustomInput
                     value={values.usuario}
@@ -111,7 +111,7 @@ export default function LoginScreen({navigation}) {
                 )}
                 <CustomButton
                     title={"Confirmar"}
-                    onPress={handleAdminSubmit}
+                    onPress={handleSubmit}
                     disabled={!isValid || !dirty}
                 />
                 </View>
