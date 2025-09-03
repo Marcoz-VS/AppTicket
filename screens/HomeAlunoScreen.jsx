@@ -1,24 +1,20 @@
-import { SafeAreaView, View, Text } from "react-native";
-import CustomButton from "../components/CustomButton";
+import { useSelector } from 'react-redux';
 
-export default function HomeAlunoScreen({route}) {
-    const { aluno } = route.params;
+export default function HomeAlunoScreen({ navigation }) {
+  const user = useSelector((state) => state.auth.user)
 
-    return (
-        <SafeAreaView>
-            <View>
-                <Text>
-                    Olá, {aluno.nome}
-                </Text>
-            </View>
-            <View>
-                <Text>
-                    Pegar Ticket
-                </Text>
-                <CustomButton
-                title={"Ticket"}
-                />
-            </View>
-        </SafeAreaView>
-    )
+  return (
+    <SafeAreaView>
+      <View>
+        <Text>Olá, {user.nome}</Text>
+      </View>
+      <View>
+        <Text>Pegar Ticket</Text>
+        <CustomButton
+          title={'Ticket'}
+          onPress={() => navigation.navigate('Ticket')} 
+        />
+      </View>
+    </SafeAreaView>
+  );
 }

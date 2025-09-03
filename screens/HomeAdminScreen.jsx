@@ -1,7 +1,9 @@
 import { SafeAreaView } from "react-native";
 import {View, Text,TouchableOpacity, StyleSheet, Alert} from "react-native"
-export default function HomeAdminScreen({route, navigation}){
-    const { admin } = route.params;
+import { useSelector } from 'react-redux';
+
+export default function HomeAdminScreen({ navigation }) {
+  const user = useSelector((state) => state.auth.user);
 
     const handleResetTickets= () => {
         Alert.alert(
@@ -18,7 +20,7 @@ export default function HomeAdminScreen({route, navigation}){
         <SafeAreaView>
             <View>
                 <Text>
-                    Olá, {admin.usuario}
+                    Olá, {user.usuario}!
                 </Text>
                 <Text>
                     SENAI

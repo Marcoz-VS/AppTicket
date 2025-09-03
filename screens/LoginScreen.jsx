@@ -1,45 +1,36 @@
-import { SafeAreaView, StyleSheet, View, Text, Button } from "react-native";
-import { Formik } from "formik";
-import * as Yup from 'yup';
-import { Picker } from "@react-native-picker/picker";
-import CustomInput from "../components/CustomInput.jsx";
-import { useState } from "react";
-import CustomButton from "../components/CustomButton.jsx";
-import database from "../database.json";
+import { useDispatch } from 'react-redux'; 
+import { login } from '../src/slices/authSlice'; 
 
-const validationSchemaAluno = Yup.object().shape({
-  matriculaCodigo: Yup.string()
-    .max(10, 'A matrícula ou código deve ter no máximo 10 caracteres')
-    .required('Obrigatório'),
-});
-
-const validationSchemaAdmin = Yup.object().shape({
-  usuario: Yup.string()
-    .max(50, 'Usuário deve ter no máximo 50 caracteres')
-    .required('Obrigatório'),
-  senha: Yup.string()
-    .min(3, 'A senha não deve ter menos de 3 caracteres')
-    .required('Obrigatório'),
-});
-
-export default function LoginScreen({navigation}) {
-  const [role, setRole] = useState("aluno");
+export default function LoginScreen({ navigation }) {
+  const dispatch = useDispatch(); 
 
   const handleAlunoSubmit = (values) => {
-    const alunoEncontrado = database.alunos.find(aluno => aluno.matricula === values.matriculaCodigo);
+    const alunoEncontrado = database.alunos.find(
+      (aluno) => aluno.matricula === values.matriculaCodigo
+    );
     if (alunoEncontrado) {
-      navigation.navigate("HomeAluno", { aluno: alunoEncontrado });
+      dispatch(login({ user: alunoEncontrado, role: 'aluno' }));
+      navigation.navigate('HomeAluno');
     } else {
-      alert("Matrícula ou código não encontrado. Por favor, verifique e tente novamente.");
-  }};
+      alert(
+        'Matrícula ou código não encontrado. Por favor, verifique e tente novamente.'
+      );
+    }
+  };
 
   const handleAdminSubmit = (values) => {
-    const adminEncontrado = database.admins.find(admin => admin.senha === values.senha && admin.usuario === values.usuario);
+    const adminEncontrado = database.admins.find(
+      (admin) => admin.senha === values.senha && admin.usuario === values.usuario
+    );
     if (adminEncontrado) {
-      navigation.navigate("HomeAdminScreen", { admin: adminEncontrado });
+      dispatch(login({ user: adminEncontrado, role: 'admin' })); 
+      navigation.navigate('HomeAdmin');
     } else {
-      alert("Matrícula ou código não encontrado. Por favor, verifique e tente novamente.");
-  }};
+      alert(
+        'Matrícula ou código não encontrado. Por favor, verifique e tente novamente.'
+      );
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>

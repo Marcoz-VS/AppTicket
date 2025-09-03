@@ -32,12 +32,12 @@
         }
     ],
     "admins": [{
-        "nome": "Bruno",
+        "usuario": "Bruno",
         "senha": "SpiderMan01",
         "cargo": "Professor"
     },
     {
-        "nome": "Titione",
+        "usuario": "Titione",
         "senha": "Python25",
         "cargo": "Supervisor"
     }]
