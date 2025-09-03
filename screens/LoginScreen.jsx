@@ -1,8 +1,30 @@
-import { useDispatch } from 'react-redux'; 
-import { login } from '../src/slices/authSlice'; 
+import { useDispatch } from 'react-redux';
+import { login } from '../src/slices/authSlice';
+import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { Picker } from '@react-native-picker/picker';
+import CustomInput from '../components/CustomInput';
+import CustomButton from '../components/CustomButton';
+import database from '../database';
+import React, { useState } from 'react';
+
+const validationSchemaAluno = Yup.object().shape({
+  matriculaCodigo: Yup.string()
+})
+
+const validationSchemaAdmin = Yup.object().shape({
+  usuario: Yup.string()
+    .max(50, 'O usuário deve ter no máximo 50 caracteres')
+    .required('Usuário é obrigatório'),
+  senha: Yup.string()
+    .min(3, 'A senha deve ter pelo menos 3 caracteres')
+    .required('Senha é obrigatória')
+});
 
 export default function LoginScreen({ navigation }) {
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
+  const [role, setRole] = useState('aluno'); 
 
   const handleAlunoSubmit = (values) => {
     const alunoEncontrado = database.alunos.find(
