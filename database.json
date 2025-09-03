@@ -1,0 +1,44 @@
+{
+    "alunos": [
+        {
+            "nome": "João Silva",
+            "matricula": "123",
+            "curso": "Desenvolvimento de Sistemas",
+            "local": "SENAI Palhoça"
+        },
+        {
+            "nome": "Maria Oliveira",
+            "matricula": 2034343468,
+            "curso": "Mecanica",
+            "local": "SENAI Palhoça"
+        },
+        {
+            "nome": "Pedro Santos",
+            "matricula": 2034343469,
+            "curso": "Eletromecânica",
+            "local": "SENAI Palhoça"
+        },
+        {
+            "nome": "Ana Costa",
+            "matricula": 2034343470,
+            "curso": "Automação Industrial",
+            "local": "SENAI Palhoça"
+        },
+        {
+            "nome": "Lucas Pereira",
+            "matricula": 2034343471,
+            "curso": "Redes de Computadores",
+            "local": "SENAI Palhoça"
+        }
+    ],
+    "admins": [{
+        "nome": "Bruno",
+        "senha": "SpiderMan01",
+        "cargo": "Professor"
+    },
+    {
+        "nome": "Titione",
+        "senha": "Python25",
+        "cargo": "Supervisor"
+    }]
+}

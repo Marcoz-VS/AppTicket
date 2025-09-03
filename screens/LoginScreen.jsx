@@ -5,6 +5,7 @@ import { Picker } from "@react-native-picker/picker";
 import CustomInput from "../components/CustomInput.jsx";
 import { useState } from "react";
 import CustomButton from "../components/CustomButton.jsx";
+import database from "../database.json";
 
 const validationSchemaAluno = Yup.object().shape({
   matriculaCodigo: Yup.string()
@@ -24,16 +25,21 @@ const validationSchemaAdmin = Yup.object().shape({
 export default function LoginScreen({navigation}) {
   const [role, setRole] = useState("aluno");
 
-  const handleAlunoSubmit = (values, { setSubmitting }) => {
-    console.log(values);
-    navigation.navigate("HomeAluno");
-    setSubmitting(false);
-  };
+  const handleAlunoSubmit = (values) => {
+    const alunoEncontrado = database.alunos.find(aluno => aluno.matricula === values.matriculaCodigo);
+    if (alunoEncontrado) {
+      navigation.navigate("HomeAluno", { aluno: alunoEncontrado });
+    } else {
+      alert("Matrícula ou código não encontrado. Por favor, verifique e tente novamente.");
+  }};
 
   const handleAdminSubmit = (values, { setSubmitting }) => {
-    console.log(values);
-    setSubmitting(false);
-  };
+    const adminEncontrado = database.admins.find(admin => admin.senha === values.senha && admin.usuario === values.usuario);
+    if (adminEncontrado) {
+      navigation.navigate("HomeAdminScreen", { aluno: adminEncontrado });
+    } else {
+      alert("Matrícula ou código não encontrado. Por favor, verifique e tente novamente.");
+  }};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,7 +87,7 @@ export default function LoginScreen({navigation}) {
             validationSchema={validationSchemaAdmin}
             onSubmit={handleAdminSubmit}
             >
-            {({ handleChange, handleSubmit, values, errors, touched, isValid, dirty }) => (
+            {({ handleChange, handleAdminSubmit, values, errors, touched, isValid, dirty }) => (
                 <View>
                 <CustomInput
                     value={values.usuario}
@@ -105,7 +111,7 @@ export default function LoginScreen({navigation}) {
                 )}
                 <CustomButton
                     title={"Confirmar"}
-                    onPress={handleSubmit}
+                    onPress={handleAdminSubmit}
                     disabled={!isValid || !dirty}
                 />
                 </View>
