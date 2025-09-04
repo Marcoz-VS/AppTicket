@@ -15,7 +15,6 @@ function TabAlunoNavigator({ navigation }) {
   return (
     <Tab.Navigator>
       <Tab.Screen name="HomeAluno" component={HomeAlunoScreen} />
-      <Tab.Screen name="Ticket" component={TicketScreen} />
     </Tab.Navigator>
   );
 }
@@ -27,6 +26,11 @@ function HomeAlunoStack() {
         name="HomeAlunoTab"
         component={TabAlunoNavigator}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+      name="Ticket" 
+      component={TicketScreen} 
+      options={{ title: 'Ticket' }}
       />
     </Stack.Navigator>
   );

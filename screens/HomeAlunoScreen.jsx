@@ -8,7 +8,11 @@ export default function HomeAlunoScreen({ navigation }) {
   return (
     <SafeAreaView>
       <View>
+        {user.nome ? 
         <Text>Olá, {user.nome}</Text>
+        :
+        <Text>Olá, Aluno</Text>
+        }
       </View>
       <View>
         <Text>Pegar Ticket</Text>
