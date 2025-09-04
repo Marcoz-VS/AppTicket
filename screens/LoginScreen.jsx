@@ -6,20 +6,26 @@ import * as Yup from 'yup';
 import { Picker } from '@react-native-picker/picker';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-import database from '../database';
+import database from '../database.json';
 import React, { useState } from 'react';
 
 const validationSchemaAluno = Yup.object().shape({
   matriculaCodigo: Yup.string()
-})
+    .matches(/^\d+$/, 'A matrícula deve conter apenas números')
+    .max(10, 'Máx. 10 caracteres')
+    .required('Obrigatório'),
+});
 
 const validationSchemaAdmin = Yup.object().shape({
   usuario: Yup.string()
+    .trim('Sem espaços extras')
+    .strict(true)
     .max(50, 'O usuário deve ter no máximo 50 caracteres')
     .required('Usuário é obrigatório'),
   senha: Yup.string()
-    .min(3, 'A senha deve ter pelo menos 3 caracteres')
-    .required('Senha é obrigatória')
+    .min(6, 'A senha deve ter pelo menos 6 caracteres')
+    .max(20, 'A senha deve ter no máximo 20 caracteres')
+    .required('Senha é obrigatória'),
 });
 
 export default function LoginScreen({ navigation }) {
