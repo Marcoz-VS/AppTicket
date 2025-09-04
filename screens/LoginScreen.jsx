@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 const validationSchemaAluno = Yup.object().shape({
   matriculaCodigo: Yup.string()
     .matches(/^\d+$/, 'A matrícula deve conter apenas números')
-    .max(10, 'Máx. 10 caracteres')
+    .max(10, 'Máx. 10 dígitos')
     .required('Obrigatório'),
 });
 
@@ -20,7 +20,7 @@ const validationSchemaAdmin = Yup.object().shape({
   usuario: Yup.string()
     .trim('Sem espaços extras')
     .strict(true)
-    .max(50, 'O usuário deve ter no máximo 50 caracteres')
+    .max(50, 'Máx. 50 caracteres')
     .required('Usuário é obrigatório'),
   senha: Yup.string()
     .min(6, 'A senha deve ter pelo menos 6 caracteres')
@@ -40,23 +40,19 @@ export default function LoginScreen({ navigation }) {
       dispatch(login({ user: alunoEncontrado, role: 'aluno' }));
       navigation.navigate('HomeAluno');
     } else {
-      alert(
-        'Matrícula ou código não encontrado. Por favor, verifique e tente novamente.'
-      );
+      alert('Matrícula não encontrada. Verifique e tente novamente.');
     }
   };
 
   const handleAdminSubmit = (values) => {
     const adminEncontrado = database.admins.find(
-      (admin) => admin.senha === values.senha && admin.usuario === values.usuario
+      (admin) => admin.usuario === values.usuario && admin.senha === values.senha
     );
     if (adminEncontrado) {
       dispatch(login({ user: adminEncontrado, role: 'admin' })); 
       navigation.navigate('HomeAdmin');
     } else {
-      alert(
-        'Matrícula ou código não encontrado. Por favor, verifique e tente novamente.'
-      );
+      alert('Usuário ou senha incorretos. Verifique e tente novamente.');
     }
   };
 
@@ -65,80 +61,88 @@ export default function LoginScreen({ navigation }) {
       <Text style={styles.title}>MerendaGo</Text>
       <Text>Login</Text>
 
-      <Picker style={styles.picker} selectedValue={role} onValueChange={(value) => setRole(value)}>
+      <Picker
+        style={styles.picker}
+        selectedValue={role}
+        onValueChange={(value) => setRole(value)}
+      >
         <Picker.Item label="Aluno" value="aluno" />
         <Picker.Item label="Admin" value="admin" />
       </Picker>
 
       {role === "aluno" ? (
         <>
-            <Text>Insira sua matricula ou código para se cadastrar neste aplicativo</Text>
-            <Formik
+          <Text>Insira sua matrícula para entrar</Text>
+          <Formik
             initialValues={{ matriculaCodigo: '' }}
             validationSchema={validationSchemaAluno}
             onSubmit={handleAlunoSubmit}
-            >
+          >
             {({ handleChange, handleSubmit, values, errors, touched, isValid, dirty }) => (
-                <View>
+              <View>
                 <CustomInput
-                    value={values.matriculaCodigo}
-                    onChangeText={handleChange('matriculaCodigo')}
-                    placeholder={'Coloque sua matrícula ou código (máx. 10 caracteres)'}
-                    required
+                  value={values.matriculaCodigo}
+                  onChangeText={handleChange('matriculaCodigo')}
+                  placeholder={'Digite sua matrícula (até 10 dígitos)'}
+                  required
                 />
                 {touched.matriculaCodigo && errors.matriculaCodigo && (
-                    <Text style={styles.errorText}>{errors.matriculaCodigo}</Text>
+                  <Text style={styles.errorText}>{errors.matriculaCodigo}</Text>
                 )}
                 <CustomButton
-                    title={"Confirmar"}
-                    onPress={handleSubmit}
-                    disabled={!isValid || !dirty}
+                  title={"Confirmar"}
+                  onPress={handleSubmit}
+                  disabled={!isValid || !dirty}
                 />
-                </View>
+              </View>
             )}
-            </Formik>
+          </Formik>
         </>
       ) : (
         <>
-            <Text>Insira seu usúario e senha para se cadastrar neste Aplicativo</Text>
-            <Formik
+          <Text>Insira seu usuário e senha</Text>
+          <Formik
             initialValues={{ usuario: '', senha: '' }}
             validationSchema={validationSchemaAdmin}
             onSubmit={handleAdminSubmit}
-            >
+          >
             {({ handleChange, handleSubmit, values, errors, touched, isValid, dirty }) => (
-                <View>
+              <View>
                 <CustomInput
-                    value={values.usuario}
-                    onChangeText={handleChange('usuario')}
-                    placeholder={'Coloque o seu usuário (máx. 50 caracteres)'}
-                    required
+                  value={values.usuario}
+                  onChangeText={handleChange('usuario')}
+                  placeholder={'Usuário (máx. 50 caracteres)'}
+                  required
                 />
                 {touched.usuario && errors.usuario && (
-                    <Text style={styles.errorText}>{errors.usuario}</Text>
+                  <Text style={styles.errorText}>{errors.usuario}</Text>
                 )}
 
                 <CustomInput
-                    value={values.senha}
-                    onChangeText={handleChange('senha')}
-                    placeholder={'Coloque sua senha (min. 3 caracteres)'}
-                    secureTextEntry
-                    required
+                  value={values.senha}
+                  onChangeText={handleChange('senha')}
+                  placeholder={'Senha (6–20 caracteres)'}
+                  secureTextEntry
+                  required
                 />
                 {touched.senha && errors.senha && (
-                    <Text style={styles.errorText}>{errors.senha}</Text>
+                  <Text style={styles.errorText}>{errors.senha}</Text>
                 )}
+
                 <CustomButton
-                    title={"Confirmar"}
-                    onPress={handleSubmit}
-                    disabled={!isValid || !dirty}
+                  title={"Confirmar"}
+                  onPress={handleSubmit}
+                  disabled={!isValid || !dirty}
                 />
-                </View>
+              </View>
             )}
-            </Formik>
+          </Formik>
         </>
       )}
-      <Text>Ao clicar em continuar, você concorda com os nossos Termos de Serviço e com a Política de Privacidade</Text>
+
+      <Text style={styles.footer}>
+        Ao clicar em continuar, você concorda com os nossos Termos de Serviço e com a Política de Privacidade
+      </Text>
     </SafeAreaView>
   );
 }
@@ -158,48 +162,22 @@ const styles = StyleSheet.create({
     color: '#000',
     textAlign: 'center',
   },
-  pickerWrapper: {
-    width: '100%',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 12,
-    backgroundColor: '#f5f5f5',
-    marginBottom: 30,
-    overflow: 'hidden',
-  },
   picker: {
     height: 50,
     width: '100%',
     color: '#000',
-  },
-  form: {
-    width: '100%',
-  },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 12,
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 12,
-    fontSize: 16,
-    color: '#000',
-  },
-  button: {
-    backgroundColor: '#000',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
+    marginBottom: 20,
   },
   errorText: {
     color: '#e53935',
+    fontSize: 14,
+    marginTop: 4,
     marginBottom: 10,
+  },
+  footer: {
+    marginTop: 20,
+    fontSize: 12,
+    textAlign: 'center',
+    color: '#666',
   },
 });
