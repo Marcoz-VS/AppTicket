@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { SafeAreaView, Text } from 'react-native';
 import CustomButton from '../components/CustomButton';
 
-export default function TicketScreen(navigation) {
+export default function TicketScreen({navigation}) {
   const user = useSelector((state) => state.auth.user);
 
   return (
@@ -10,8 +10,8 @@ export default function TicketScreen(navigation) {
       <Text>Ticket Screen</Text>
       <Text>Bem-vindo, {user.nome}!</Text>
       <CustomButton 
-        title="Pegar Ticket" 
-        onPress={() => { /* Lógica para pegar ticket */ }} 
+        title="Rasgar Ticket" 
+        onPress={() => { /* Lógica para rasgar ticket */ }} 
       />
       <CustomButton
         title={"Voltar"}
