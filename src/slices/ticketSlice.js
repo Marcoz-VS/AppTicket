@@ -39,7 +39,7 @@ export const registrarTicket = createAsyncThunk(
   async (aluno, { dispatch }) => {
     try {
       const result = await dispatch(loadTickets());
-      const tickets = result.payload;
+      const tickets = result.payload || [];
 
       const hoje = new Date().toISOString().split('T')[0];
       const horaAgora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -59,8 +59,10 @@ export const registrarTicket = createAsyncThunk(
         usado: false,
         horaUso: null,
       };
-      tickets.push(novoTicket);
-      await dispatch(saveTickets(tickets));
+
+      const updatedTickets = [...tickets, novoTicket];
+      await dispatch(saveTickets(updatedTickets));
+
       return { sucesso: true, mensagem: "Ticket registrado com sucesso!", ticket: novoTicket };
     } catch (error) {
       return { sucesso: false, mensagem: "Erro ao gerar ticket: " + error.message };
@@ -70,11 +72,13 @@ export const registrarTicket = createAsyncThunk(
 
 export const usarTicket = createAsyncThunk(
   'tickets/usarTicket',
-  async (matricula) => {
+  async (matricula, { dispatch }) => {
     try {
-      const tickets = await loadTickets();
+      const result = await dispatch(loadTickets());
+      const tickets = result.payload || [];
+
       const hoje = new Date().toISOString().split("T")[0];
-      const horaAgora = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      const horaAgora = new Date().toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
 
       const ticketIndex = tickets.findIndex((t) => t.matricula === matricula && t.data === hoje && !t.usado);
 
@@ -82,14 +86,11 @@ export const usarTicket = createAsyncThunk(
         return { sucesso: false, mensagem: "Nenhum ticket encontrado para hoje." };
       }
 
-      const ticket = tickets[ticketIndex];
-      if (!ticket) {
-        return { sucesso: false, mensagem: "Nenhum ticket encontrado para hoje." };
-      }
-
-      const updatedTicket = { ...ticket, usado: true, horaUso: horaAgora };
+      const updatedTicket = { ...tickets[ticketIndex], usado: true, horaUso: horaAgora };
       tickets[ticketIndex] = updatedTicket;
-      await saveTickets(tickets);
+
+      await dispatch(saveTickets(tickets));
+
       return { sucesso: true, mensagem: "Ticket usado com sucesso!", ticket: updatedTicket };
     } catch (error) {
       return { sucesso: false, mensagem: "Erro ao usar ticket: " + error.message };
