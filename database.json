@@ -40,5 +40,9 @@
         "usuario": "Titione",
         "senha": "Python25",
         "cargo": "Supervisor"
-    }]
+    },
+{
+    "usuario": "adm",
+    "senha": "123456"
+}]
 }
