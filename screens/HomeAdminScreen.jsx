@@ -23,23 +23,23 @@ export default function HomeAdminScreen({ navigation }) {
                     Olá, {user.usuario}!
                 </Text>
                 <Text>
-                    SENAI
+                    SENAI Palhoça
                 </Text>
-                <Text>
-                    Palhoça
-                </Text>
+                
 
             </View>
             <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("CadastrarAluno")}>
+            onPress={() => navigation.navigate("Cadastro")}>
                 <Text style={styles.buttonText}>Cadastrar Alunos</Text>
+                
             </TouchableOpacity>
 
             <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate("AlunosTickets")}>
                 <Text style={styles.buttonText}>Ver alunos com ticket</Text>
+                
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -55,6 +55,7 @@ export default function HomeAdminScreen({ navigation }) {
                 <Text style={styles.buttonText}>Resetar Tickets</Text>
             </TouchableOpacity>
         </SafeAreaView>
+
     );
 }
 
