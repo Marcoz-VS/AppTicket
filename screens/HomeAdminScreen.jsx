@@ -1,6 +1,7 @@
 import { SafeAreaView } from "react-native";
-import {View, Text,TouchableOpacity, StyleSheet, Alert} from "react-native"
+import {View, Text, StyleSheet, Alert} from "react-native"
 import { useSelector } from 'react-redux';
+import CustomButton from "../components/CustomButton";
 
 export default function HomeAdminScreen({ navigation }) {
   const user = useSelector((state) => state.auth.user);
@@ -25,37 +26,31 @@ export default function HomeAdminScreen({ navigation }) {
                 <Text>
                     SENAI Palhoça
                 </Text>
-                
-
             </View>
-            <TouchableOpacity
+            <CustomButton
+            title="Cadastrar Alunos"
             style={styles.button}
-            onPress={() => navigation.navigate("Cadastro")}>
-                <Text style={styles.buttonText}>Cadastrar Alunos</Text>
-                
-            </TouchableOpacity>
+            onPress={() => navigation.navigate("Cadastro")}
+            />
 
-            <TouchableOpacity
+            <CustomButton
+            title={"Ver Tickets dos Alunos"}
             style={styles.button}
-            onPress={() => navigation.navigate("AlunosTickets")}>
-                <Text style={styles.buttonText}>Ver alunos com ticket</Text>
-                
-            </TouchableOpacity>
+            onPress={() => navigation.navigate("AlunosTickets")}
+            />
 
-            <TouchableOpacity
+            <CustomButton
+            title={"Ver Historico dos Tickets"}
             style={styles.button}
-            onPress={() => navigation.navigate("HistoricoTickets")}>
-                <Text style={styles.buttonText}>Ver historico dos tickets</Text>
-            </TouchableOpacity>
+            onPress={() => navigation.navigate("HistoricoTickets")}
+            />
 
-
-            <TouchableOpacity
-            style={[styles.button, styles.resetButton]}
-            onPress={handleResetTickets}>
-                <Text style={styles.buttonText}>Resetar Tickets</Text>
-            </TouchableOpacity>
+            <CustomButton
+            title={"Resetar Tickets"}
+            style={styles.button}
+            onPress={handleResetTickets}
+            />
         </SafeAreaView>
-
     );
 }
 
@@ -78,9 +73,7 @@ const styles= StyleSheet.create({
         borderRadius:10,
         alignItems:'center',
         marginBottom:20,
-    },
-    resetButton:{
-        backgroundColor:"black",
+        marginTop:10,
     },
     buttonText:{
         color:"#fff",
