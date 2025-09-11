@@ -1,26 +1,39 @@
 import { SafeAreaView, View, Text } from "react-native";
+import { useState, useEffect } from "react";
 import Cronometro from "../components/Cronometro";
 
 export default function TimerScreen() {
     const tempoIntervalo = 15 * 60;
     const [deveIniciar, setDeveIniciar] = useState(false);
 
-    useEffect(() => {
-        const verificarTempo = () => {
+    const verificarSeDeveEstarAtivo = () => {
         const agora = new Date();
         const horaAtual = agora.getHours();
         const minutoAtual = agora.getMinutes();
-      
-        if (horaAtual === 9 && minutoAtual === 20) {
-            setDeveIniciar(true);
-        }
+
+        const minutosDoDia = horaAtual * 60 + minutoAtual;
+        const inicioIntervalo = 9 * 60 + 20;
+        const fimIntervalo = 9 * 60 + 35;
+
+        return minutosDoDia >= inicioIntervalo && minutosDoDia < fimIntervalo;
+    };
+
+    useEffect(() => {
+        const verificarTempo = () => {
+        const deveEstarAtivo = verificarSeDeveEstarAtivo();
+        setDeveIniciar(deveEstarAtivo);
         };
 
-        const intervalo = setInterval(verificarHorario, 60000);
-        verificarHorario();
+        verificarTempo();
+
+        const intervalo = setInterval(verificarTempo, 60000);
     
         return () => clearInterval(intervalo);
     }, []);
+
+    const handleTimerEnd = () => {
+        setDeveIniciar(false);
+    };
 
     return (
         <SafeAreaView style={{ flex: 1, padding: 20 }}>
@@ -30,7 +43,8 @@ export default function TimerScreen() {
                 <Text style={{ fontSize: 16, marginBottom: 20 }}>09:20 - 09:35</Text>
                 <Cronometro 
                 TempoInicial={tempoIntervalo}
-                iniciar={deveIniciar}
+                shouldStart={deveIniciar}
+                onTimerEnd={handleTimerEnd}
                 />
             </View>
         </SafeAreaView>
