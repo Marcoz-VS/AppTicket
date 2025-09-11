@@ -41,8 +41,9 @@
         "senha": "Python25",
         "cargo": "Supervisor"
     },
-{
-    "usuario": "adm",
-    "senha": "123456"
-}]
+    {
+        "usuario": "adm",
+        "senha": "123456",
+        "cargo": "Coordenador"
+    }]
 }

@@ -13,32 +13,20 @@ import CadastroScreen from './screens/CadastroScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function TabNavigator (){
-  return(
-    <Tab.Navigator
-    screenOptions = {({route}) => ({
-      tabBarIcon: ({color, size})=>{
-        let iconName;
-        if(route.name==='Tarefas') iconName = 'home';
-        else if (route.name === 'Tarefas') iconName= ' person';
-        else if (route.name === 'Configurações') iconName= 'settings';
-        return <Icon name = {iconName} size ={size} color = {color}/>
-      },
-      tabBarActiveTintColor :'#007bff',
-      tabBarInactiveTintColor:'#666',
-      tabBarStyle:{backgroundColor: '#f5f5f5'},
-    })}
-    >
-      <Tab.Screen name= 'home' component = {LoginScreen} options ={{headerShown:false}}/>
-    </Tab.Navigator>
-  )
-}
-
 function TabAlunoNavigator({ navigation }) {
   return (
     <Tab.Navigator>
       <Tab.Screen name="HomeAluno" component={HomeAlunoScreen} />
       <Tab.Screen name="Timer" component={TimerScreen} />
+    </Tab.Navigator>
+  );
+}
+
+function TabAdminNavigator({ navigation }) {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="AdminDashboard" component={HomeAdminScreen} />
+      <Tab.Screen name="Cadastro" component={CadastroScreen} />
     </Tab.Navigator>
   );
 }
@@ -71,8 +59,11 @@ export default function App() {
             component={HomeAlunoStack}
             options={{ headerShown: false }}
           />
-          <Stack.Screen name="HomeAdmin" component={HomeAdminScreen} options={{ title: 'Home Admin' }} />
-          <Stack.Screen name="Cadastro" component={CadastroScreen} options={{ title: 'Cadastro' }} />
+          <Stack.Screen
+            name="HomeAdmin"
+            component={TabAdminNavigator}
+            options={{ headerShown: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
