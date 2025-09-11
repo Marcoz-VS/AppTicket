@@ -21,6 +21,12 @@ export default function HomeAlunoScreen({ navigation }) {
           onPress={() => navigation.navigate('Ticket')} 
         />
       </View>
+      <View>
+        <CustomButton
+          title={'Voltar'}
+          onPress={() => { navigation.goBack(); }}
+        />
+      </View>
     </SafeAreaView>
   );
 }

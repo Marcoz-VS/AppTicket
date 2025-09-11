@@ -7,6 +7,7 @@ import LoginScreen from './screens/LoginScreen';
 import HomeAlunoScreen from './screens/HomeAlunoScreen';
 import TicketScreen from './screens/TicketScreen';
 import HomeAdminScreen from './screens/HomeAdminScreen';
+import TimerScreen from './screens/TimerScreen';
 import { Provider } from 'react-redux';
 import { store } from './src/store';
 import CadastroScreen from './screens/CadastroScreen';
@@ -39,6 +40,7 @@ function TabAlunoNavigator({ navigation }) {
   return (
     <Tab.Navigator>
       <Tab.Screen name="HomeAluno" component={HomeAlunoScreen} />
+      <Tab.Screen name="Timer" component={TimerScreen} />
     </Tab.Navigator>
   );
 }
