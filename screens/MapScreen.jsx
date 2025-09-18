@@ -1,11 +1,11 @@
 import * as Location from 'expo-location';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import Map, { Marker, Circle} from 'react-native-maps';
+import MapView, { Marker, Circle } from 'react-native-maps';
 import { useEffect, useState } from 'react';
 
-const ESCOLA_COORDS = { 
-    latitude: -27.645679,
-    longitude: -48.678945 
+const ESCOLA_COORDS = {
+    latitude: -27.618337,
+    longitude: -48.662516
 };
 const RAIO = 500;
 
@@ -13,25 +13,55 @@ export default function MapScreen() {
     const [location, setLocation] = useState(null);
     const [status, setStatus] = useState("Carregando...");
 
-    useEffect(async () => {
-        await Location.watchPositionAsync(
-            { accuracy: Location.Accuracy.High, distanceInterval: 1 },
-            (loc) => {
-                setLocation(loc.coords);
-                const distancia = getDistance(
-                    loc.coords.latitude,
-                    loc.coords.longitude,
-                    ESCOLA_COORDS.latitude, 
-                    ESCOLA_COORDS.longitude
-                );
-                if (distancia <= RAIO) {
-                    setStatus("Dentro da área da escola");
-                } else {
-                    setStatus("Fora da área da escola");
-                }
+    useEffect(() => {
+        (async () => {
+            console.log("Requesting location permissions...");
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            console.log("Location permissions status:", status);
+
+            if (status !== 'granted') {
+                setStatus('Permissão de acesso à localização negada');
+                return;
             }
-        );
+
+            console.log("Getting current position...");
+            try {
+                let location = await Location.getCurrentPositionAsync({});
+                console.log("Current position:", location);
+                setLocation(location.coords);
+                updateStatus(location.coords);
+            } catch (error) {
+                console.error("Error getting current position:", error);
+                setStatus("Erro ao obter a localização");
+            }
+        })();
     }, []);
+
+    const updateStatus = (coords) => {
+        if (coords) {
+            const distance = getDistance(
+                coords.latitude,
+                coords.longitude,
+                ESCOLA_COORDS.latitude,
+                ESCOLA_COORDS.longitude
+            );
+
+            if (distance <= RAIO) {
+                setStatus("Dentro da área");
+            } else {
+                setStatus("Fora da área");
+            }
+        } else {
+            setStatus("Carregando...");
+        }
+    };
+
+    useEffect(() => {
+        if (location) {
+            console.log("Location state updated:", location);
+            updateStatus(location);
+        }
+    }, [location]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -54,7 +84,7 @@ export default function MapScreen() {
                 />
                 <Circle
                     center={ESCOLA_COORDS}
-                    radius={500}
+                    radius={RAIO}
                     strokeColor="rgba(0, 0, 255, 0.7)"
                     fillColor="rgba(0, 0, 255, 0.2)"
                 />
@@ -71,26 +101,26 @@ export default function MapScreen() {
                 )}
             </MapView>
             <View style={styles.statusBox}>
-                <Text style={styles.statusBox}>{status}</Text>
+                <Text style={styles.statusText}>{status}</Text>
             </View>
         </SafeAreaView>
     );
 }
 
 function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3;
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
+    const R = 6371e3;
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
 
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) *
-    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const a =
+        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c;
+    return R * c;
 }
 
 const styles = StyleSheet.create({

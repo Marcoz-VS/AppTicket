@@ -4,14 +4,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as Location from 'expo-location';
 import CustomButton from '../components/CustomButton';
 import { logout } from '../src/slices/authSlice';
+import { loadTickets } from '../src/slices/ticketSlice';
 
-const ESCOLA_COORDS = { latitude: -27.645679, longitude: -48.678945 };
+const ESCOLA_COORDS = { 
+  latitude: -27.618337, 
+  longitude: -48.662516 
+};
 const RAIO = 500;
 const HORA_INICIO = "09:20";
 const HORA_FIM = "09:35";
 
 export default function HomeAlunoScreen({ navigation }) {
   const user = useSelector((state) => state.auth.user);
+  const tickets = useSelector((state) => state.tickets.tickets);
   const dispatch = useDispatch();
   const [status, setStatus] = useState("Carregando...");
   const [podePegar, setPodePegar] = useState(false);
@@ -23,6 +28,10 @@ export default function HomeAlunoScreen({ navigation }) {
         setStatus("Permissão negada");
         return;
       }
+      
+      // Load tickets first
+      await dispatch(loadTickets());
+      
       let loc = await Location.getCurrentPositionAsync({});
       validarTicket(loc.coords);
     })();
@@ -30,7 +39,21 @@ export default function HomeAlunoScreen({ navigation }) {
 
   const validarTicket = (coords) => {
     const agora = new Date();
+    const hoje = agora.toISOString().split('T')[0];
     const horaAtual = agora.toTimeString().slice(0, 5);
+
+    // Check if user already used a ticket today
+    const ticketUsadoHoje = tickets.find(
+      t => t.matricula === user.matricula && 
+      t.data === hoje && 
+      t.usado
+    );
+
+    if (ticketUsadoHoje) {
+      setStatus("Já utilizou o ticket hoje");
+      setPodePegar(false);
+      return;
+    }
 
     if (horaAtual < HORA_INICIO || horaAtual > HORA_FIM) {
       setStatus("Fora do horário do recreio");
