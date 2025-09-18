@@ -27,16 +27,17 @@ export default function CadastroScreen() {
       <TextInput style={styles.input}
        placeholder="Nome do Aluno"
        value={nome}
-       onChange={setNome}
+       onChangeText={(text) => setNome(text.replace(/[^A-Za-zÀ-ÿ\s]/g, ''))}
        />
       <TextInput style={styles.input} 
-      placeholder="Matrícula"
+      placeholder="Matrícula (apenas números)"
       value={matricula}
-      onChange={setMatricula} />
+      onChangeText={(text) => setMatricula(text.replace(/[^0-9]/g, ''))}
+  keyboardType="numeric" />
       <TextInput style={styles.input} 
       placeholder="Curso"
       value={curso}
-      onChange={setCurso} />
+      onChangeText={(text) => setCurso(text.replace(/[^A-Za-zÀ-ÿ\s]/g, ''))} />
       <TouchableOpacity style={styles.button} onPress={handleCadastro}>
         <Text style={styles.buttonText}>Cadastrar</Text>
       </TouchableOpacity>
