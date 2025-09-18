@@ -63,8 +63,7 @@ export default function HomeAlunoScreen({ navigation }) {
       <View>
         <CustomButton
           title="Pegar Ticket"
-          onPress={() => navigation.navigate('Ticket')}
-          disabled={!podePegar}
+          onPress={podePegar ? () => navigation.navigate('Ticket') : null}
         />
       </View>
 
