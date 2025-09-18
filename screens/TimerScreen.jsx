@@ -3,31 +3,21 @@ import { useState, useEffect } from "react";
 import Cronometro from "../components/Cronometro";
 
 export default function TimerScreen() {
-    const tempoIntervalo = 15 * 60;
+    const HORA_INICIO = 9 * 60 + 20;
+    const HORA_FIM = 9 * 60 + 35;
+    const tempoIntervalo = (HORA_FIM - HORA_INICIO) * 60;
     const [deveIniciar, setDeveIniciar] = useState(false);
 
     const verificarSeDeveEstarAtivo = () => {
         const agora = new Date();
-        const horaAtual = agora.getHours();
-        const minutoAtual = agora.getMinutes();
-
-        const minutosDoDia = horaAtual * 60 + minutoAtual;
-        const inicioIntervalo = 9 * 60 + 20;
-        const fimIntervalo = 9 * 60 + 35;
-
-        return minutosDoDia >= inicioIntervalo && minutosDoDia < fimIntervalo;
+        const minutosDoDia = agora.getHours() * 60 + agora.getMinutes();
+        return minutosDoDia >= HORA_INICIO && minutosDoDia < HORA_FIM;
     };
 
     useEffect(() => {
-        const verificarTempo = () => {
-        const deveEstarAtivo = verificarSeDeveEstarAtivo();
-        setDeveIniciar(deveEstarAtivo);
-        };
-
+        const verificarTempo = () => setDeveIniciar(verificarSeDeveEstarAtivo());
         verificarTempo();
-
         const intervalo = setInterval(verificarTempo, 60000);
-    
         return () => clearInterval(intervalo);
     }, []);
 
