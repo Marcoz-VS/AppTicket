@@ -1,14 +1,43 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import { useState } from 'react';
 
 export default function CadastroScreen() {
+  const [nome, setNome] = useState('');
+  const [matricula, setMatricula] = useState('');
+  const [curso, setCurso] = useState('');
+
+  const handleCadastro = () => {
+    if (!nome || !matricula || !curso) {
+      Alert.alert('Erro', 'Preencha todos os campos.');
+      return;
+    }
+
+    Alert.alert('Sucesso', 'Aluno cadastrado com sucesso!');
+    console.log({ nome, matricula, curso });
+
+    setNome('');
+    setMatricula('');
+    setCurso('');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Cadastro de Alunos</Text>
-      <TextInput style={styles.input} placeholder="Nome do Aluno" />
-      <TextInput style={styles.input} placeholder="Matrícula" />
-      <TextInput style={styles.input} placeholder="Curso" />
-      <TouchableOpacity style={styles.button}>
+      <TextInput style={styles.input}
+       placeholder="Nome do Aluno"
+       value={nome}
+       onChange={setNome}
+       />
+      <TextInput style={styles.input} 
+      placeholder="Matrícula"
+      value={matricula}
+      onChange={setMatricula} />
+      <TextInput style={styles.input} 
+      placeholder="Curso"
+      value={curso}
+      onChange={setCurso} />
+      <TouchableOpacity style={styles.button} onPress={handleCadastro}>
         <Text style={styles.buttonText}>Cadastrar</Text>
       </TouchableOpacity>
     </View>
