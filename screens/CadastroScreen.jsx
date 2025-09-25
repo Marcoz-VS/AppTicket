@@ -1,40 +1,49 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from 'react-native';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import CustomInput from '../components/CustomInput';
+import CustomButton from '../components/CustomButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const validationSchema = Yup.object().shape({
+  nome: Yup.string().min(3).max(50).required('Nome é obrigatório'),
   matricula: Yup.string()
     .matches(/^[0-9]+$/, 'A matrícula deve conter apenas números')
-    .max(10, 'Máximo 10 dígitos')
-    .required('Matrícula é obrigatória'),
+    .min(3).max(10).required('Matrícula é obrigatória'),
+  curso: Yup.string().min(3).max(50).required('Curso é obrigatório'),
 });
 
-
 export default function CadastroScreen() {
+  const [alunos, setAlunos] = useState([]);
 
+  useEffect(() => {
+    const carregarAlunos = async () => {
+      const data = await AsyncStorage.getItem('alunos');
+      if (data) setAlunos(JSON.parse(data));
+    };
+    carregarAlunos();
+  }, []);
 
-  const [nome, setNome] = useState('');
-  const [matricula, setMatricula] = useState('');
-  const [curso, setCurso] = useState('');
+  const salvarAlunos = async (lista) => {
+    await AsyncStorage.setItem('alunos', JSON.stringify(lista));
+  };
 
   const handleCadastro = (values, { resetForm }) => {
-    console.log('Dados enviados:', values);
-    Alert.alert('Sucesso', 'Aluno cadastrado com sucesso!');
-    resetForm();
-    if (!nome || !matricula || !curso) {
-      Alert.alert('Erro', 'Preencha todos os campos.');
+    const { nome, matricula, curso } = values;
+
+    if (alunos.find((a) => a.matricula === matricula)) {
+      Alert.alert('Erro', 'Já existe aluno com essa matrícula');
       return;
-      
     }
 
-    Alert.alert('Sucesso', 'Aluno cadastrado com sucesso!');
-    console.log({ nome, matricula, curso });
+    const novoAluno = { nome, matricula, curso, local: 'SENAI Palhoça' };
+    const novaLista = [...alunos, novoAluno];
+    setAlunos(novaLista);
+    salvarAlunos(novaLista);
 
-    setNome('');
-    setMatricula('');
-    setCurso('');
+    Alert.alert('Sucesso', `Aluno ${nome} cadastrado!`);
+    resetForm();
   };
 
   return (
@@ -42,60 +51,44 @@ export default function CadastroScreen() {
       <Text style={styles.title}>Cadastro de Alunos</Text>
 
       <Formik
-                  initialValues={{ matriculaCodigo: '' }}
-                  validationSchema={validationSchema}
-                  onSubmit={handleCadastro}
-                >
-      <TextInput style={styles.input}
-       placeholder="Nome do Aluno"
-       value={nome}
-       onChangeText={(text) => setNome(text.replace(/[^A-Za-zÀ-ÿ\s]/g, ''))}
-       />
-      <TextInput style={styles.input} 
-      placeholder="Matrícula (apenas números)"
-      value={matricula}
-      onChangeText={(text) => setMatricula(text.replace(/[^0-9]/g, '').slice(0, 10))}
-  keyboardType="numeric" />
-      <TextInput style={styles.input} 
-      placeholder="Curso"
-      value={curso}
-      onChangeText={(text) => setCurso(text.replace(/[^A-Za-zÀ-ÿ\s]/g, ''))} />
-      <TouchableOpacity style={styles.button} onPress={handleCadastro}>
-        <Text style={styles.buttonText}>Cadastrar</Text>
-      </TouchableOpacity>
+        initialValues={{ nome: '', matricula: '', curso: '' }}
+        validationSchema={validationSchema}
+        onSubmit={handleCadastro}
+      >
+        {({ handleChange, handleSubmit, values, errors, touched }) => (
+          <View>
+            <CustomInput
+              placeholder="Nome do Aluno"
+              value={values.nome}
+              onChangeText={handleChange('nome')}
+            />
+            {touched.nome && errors.nome && <Text style={styles.error}>{errors.nome}</Text>}
+
+            <CustomInput
+              placeholder="Matrícula"
+              value={values.matricula}
+              onChangeText={handleChange('matricula')}
+              keyboardType="numeric"
+            />
+            {touched.matricula && errors.matricula && <Text style={styles.error}>{errors.matricula}</Text>}
+
+            <CustomInput
+              placeholder="Curso"
+              value={values.curso}
+              onChangeText={handleChange('curso')}
+            />
+            {touched.curso && errors.curso && <Text style={styles.error}>{errors.curso}</Text>}
+
+            <CustomButton title="Cadastrar" onPress={handleSubmit} />
+          </View>
+        )}
       </Formik>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
-    backgroundColor: '#fff',
-  },
-  button: {
-    backgroundColor: '#007bff',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
+  error: { color: 'red', marginBottom: 10 },
 });
