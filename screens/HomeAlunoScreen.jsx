@@ -24,8 +24,10 @@ export default function HomeAlunoScreen({ navigation }) {
 
   const verificarHorario = () => {
     const agora = new Date();
-    const minutosDoDia = agora.getHours() * 60 + agora.getMinutes();
-    console.log('Minutos do dia:', minutosDoDia, 'Horário atual:', agora.toTimeString());
+    const localHours = agora.getHours();
+    const localMinutes = agora.getMinutes();
+    const minutosDoDia = localHours * 60 + localMinutes;
+    console.log('Minutos do dia:', minutosDoDia, 'Horário atual:', agora.toLocaleTimeString());
     return minutosDoDia >= HORA_INICIO && minutosDoDia < HORA_FIM;
   };
 
