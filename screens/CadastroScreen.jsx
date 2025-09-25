@@ -5,7 +5,6 @@ import * as Yup from 'yup';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSelector } from 'react-redux';
 
 const validationSchema = Yup.object().shape({
   nome: Yup.string().min(3).max(50).required('Nome é obrigatório'),
@@ -15,8 +14,7 @@ const validationSchema = Yup.object().shape({
   curso: Yup.string().min(3).max(50).required('Curso é obrigatório'),
 });
 
-export default function CadastroScreen({navigation}) {
-  const user = useSelector((state) => state.auth.user);
+export default function CadastroScreen() {
   const [alunos, setAlunos] = useState([]);
 
   useEffect(() => {
@@ -26,39 +24,29 @@ export default function CadastroScreen({navigation}) {
     };
     carregarAlunos();
   }, []);
-
-  const salvarAlunos = async (lista) => {
+    const salvarAlunos = async (lista) => {
     await AsyncStorage.setItem('alunos', JSON.stringify(lista));
   };
 
   const handleCadastro = (values, { resetForm }) => {
-    const { nome, matricula, curso } = values;
+        const { nome, matricula, curso } = values;
 
     if (alunos.find((a) => a.matricula === matricula)) {
       Alert.alert('Erro', 'Já existe aluno com essa matrícula');
-      return;
+      return; 
     }
-
-    const novoAluno = { nome, matricula, curso, local: 'SENAI Palhoça' };
+        const novoAluno = { nome, matricula, curso, local: 'SENAI Palhoça' };
     const novaLista = [...alunos, novoAluno];
     setAlunos(novaLista);
     salvarAlunos(novaLista);
-
-    Alert.alert('Sucesso', `Aluno ${nome} cadastrado!`);
+        Alert.alert('Sucesso', `Aluno ${nome} cadastrado!`);
     resetForm();
   };
 
-  return (<>
-    <SafeAreaView>
-    <View style={styles.container}>
-      <Text>
-        Bem-Vindo {user.usuario}!
-      </Text>
-      <Text>
-        SENAI Palhoça
-      </Text>
-       
+  return (
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Cadastro de Alunos</Text>
+
       <Formik
         initialValues={{ nome: '', matricula: '', curso: '' }}
         validationSchema={validationSchema}
@@ -92,12 +80,7 @@ export default function CadastroScreen({navigation}) {
           </View>
         )}
       </Formik>
-    </View>
-   
-
     </SafeAreaView>
-    </>
-
   );
 }
 

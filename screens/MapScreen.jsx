@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, Circle } from 'react-native-maps';
 import { useEffect, useState } from 'react';
 
@@ -34,9 +34,20 @@ export default function MapScreen() {
                 console.error("Error getting current position:", error);
                 setStatus("Erro ao obter a localização");
             }
-        })();
+        });
     }, []);
-
+    const getLocation = async () => {
+         console.log("Getting current position...");
+            try {
+                let location = await Location.getCurrentPositionAsync({});
+                console.log("Current position:", location);
+                setLocation(location.coords);
+                updateStatus(location.coords);
+            } catch (error) {
+                console.error("Error getting current position:", error);
+                setStatus("Erro ao obter a localização");
+            }
+    };
     const updateStatus = (coords) => {
         if (coords) {
             const distance = getDistance(
@@ -65,8 +76,12 @@ export default function MapScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <Button title="Atualizar Localização" onPress={()=>getLocation()}/>
             <Text style={styles.title}>
                 Mapa de Acesso Escolar
+            </Text>
+            <Text>
+                {location ? `Latitude: ${location.latitude}, Longitude: ${location.longitude}` : 'Obtendo localização...'}
             </Text>
 
             <MapView

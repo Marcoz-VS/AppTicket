@@ -1,45 +1,34 @@
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
 import { SafeAreaView, Text } from 'react-native';
-import CustomButton from '../components/CustomButton';
+import { useDispatch, useSelector } from 'react-redux';
 import { registrarTicket, usarTicket, loadTickets } from '../src/slices/ticketSlice';
-import { useState, useEffect } from 'react';
+import CustomButton from '../components/CustomButton';
 
-export default function TicketScreen({navigation}) {
+export default function TicketScreen({ navigation }) {
   const user = useSelector((state) => state.auth.user);
   const [ticket, setTicket] = useState(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const checkOrGenerateTicket = async () => {
-      try {
-        // First, check if user already has an unused ticket for today
-        const result = await dispatch(loadTickets());
-        const tickets = result.payload;
-        const hoje = new Date().toISOString().split('T')[0];
-        
-        const existingTicket = tickets.find(
-          t => t.matricula === user.matricula && 
-          t.data === hoje && 
-          !t.usado
-        );
+      const result = await dispatch(loadTickets());
+      const tickets = result.payload;
+      const hoje = new Date().toISOString().split('T')[0];
 
-        if (existingTicket) {
-          // If there's an existing unused ticket, use it
-          setTicket(existingTicket);
-          return;
-        }
+      const existingTicket = tickets.find(
+        (t) => t.matricula === user.matricula && t.data === hoje && !t.usado
+      );
 
-        // If no existing ticket, generate a new one
+      if (existingTicket) {
+        setTicket(existingTicket);
+      } else {
         const response = await dispatch(registrarTicket(user));
         if (response.payload.sucesso) {
           setTicket(response.payload.ticket);
         } else {
-          console.error('Erro ao gerar ticket:', response.payload.mensagem);
+          alert(response.payload.mensagem);
           navigation.goBack();
         }
-      } catch (error) {
-        console.error('Erro:', error);
-        navigation.goBack();
       }
     };
 
@@ -49,16 +38,17 @@ export default function TicketScreen({navigation}) {
   const handleUsarTicket = async () => {
     const response = await dispatch(usarTicket(user.matricula));
     if (response.payload.sucesso) {
-      console.log('Ticket usado com sucesso!');
+      alert('Ticket usado!');
       navigation.goBack();
     } else {
-      console.error('Erro ao usar ticket: ' + response.payload.mensagem);
+      alert(response.payload.mensagem);
     }
   };
 
   return (
-    <SafeAreaView>
-      <Text>Ticket Refeição</Text>
+    <SafeAreaView style={{ padding: 20 }}>
+      <Text style={{ fontSize: 22, fontWeight: 'bold' }}>Ticket Refeição</Text>
+
       {ticket && (
         <>
           <Text>Nome: {ticket.nome}</Text>
@@ -68,14 +58,8 @@ export default function TicketScreen({navigation}) {
         </>
       )}
 
-      <CustomButton 
-        title="Rasgar Ticket" 
-        onPress={handleUsarTicket} 
-      />
-      <CustomButton
-        title="Voltar"
-        onPress={() => { navigation.goBack(); }}
-      />
+      <CustomButton title="Rasgar Ticket" onPress={handleUsarTicket} />
+      <CustomButton title="Voltar" onPress={() => navigation.goBack()} />
     </SafeAreaView>
   );
 }
