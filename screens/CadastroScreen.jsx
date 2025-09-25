@@ -1,16 +1,32 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import { useState } from 'react';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+  matricula: Yup.string()
+    .matches(/^[0-9]+$/, 'A matrícula deve conter apenas números')
+    .max(10, 'Máximo 10 dígitos')
+    .required('Matrícula é obrigatória'),
+});
+
 
 export default function CadastroScreen() {
+
+
   const [nome, setNome] = useState('');
   const [matricula, setMatricula] = useState('');
   const [curso, setCurso] = useState('');
 
-  const handleCadastro = () => {
+  const handleCadastro = (values, { resetForm }) => {
+    console.log('Dados enviados:', values);
+    Alert.alert('Sucesso', 'Aluno cadastrado com sucesso!');
+    resetForm();
     if (!nome || !matricula || !curso) {
       Alert.alert('Erro', 'Preencha todos os campos.');
       return;
+      
     }
 
     Alert.alert('Sucesso', 'Aluno cadastrado com sucesso!');
@@ -24,6 +40,12 @@ export default function CadastroScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Cadastro de Alunos</Text>
+
+      <Formik
+                  initialValues={{ matriculaCodigo: '' }}
+                  validationSchema={validationSchema}
+                  onSubmit={handleCadastro}
+                >
       <TextInput style={styles.input}
        placeholder="Nome do Aluno"
        value={nome}
@@ -32,7 +54,7 @@ export default function CadastroScreen() {
       <TextInput style={styles.input} 
       placeholder="Matrícula (apenas números)"
       value={matricula}
-      onChangeText={(text) => setMatricula(text.replace(/[^0-9]/g, ''))}
+      onChangeText={(text) => setMatricula(text.replace(/[^0-9]/g, '').slice(0, 10))}
   keyboardType="numeric" />
       <TextInput style={styles.input} 
       placeholder="Curso"
@@ -41,6 +63,7 @@ export default function CadastroScreen() {
       <TouchableOpacity style={styles.button} onPress={handleCadastro}>
         <Text style={styles.buttonText}>Cadastrar</Text>
       </TouchableOpacity>
+      </Formik>
     </View>
   );
 }
