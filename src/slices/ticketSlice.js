@@ -1,4 +1,3 @@
-// filepath: c:\Users\marcos_silva160\Documents\GitHub\AppTicket\src\slices\ticketSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 

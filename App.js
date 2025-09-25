@@ -10,6 +10,8 @@ import MapScreen from './screens/MapScreen';
 import { Provider } from 'react-redux';
 import { store } from './src/store';
 import CadastroScreen from './screens/CadastroScreen';
+import UsadosHojeScreen from './screens/UsadosHojeScreen';
+import HistoricoTicketsScreen from './screens/HistoricoTicketsScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,8 +31,8 @@ function TabAdminNavigator({ navigation }) {
     <Tab.Navigator>
       <Tab.Screen name="Cadastro" component={CadastroScreen} />
       {/* <Tab.Screen name="AdminDashboard" component={HomeAdminScreen} /> */}
-      <Tab.Screen name= "Tickets Alunos" component={CadastroScreen}/>
-      <Tab.Screen name= "Hitórico Tickets" component={CadastroScreen}/>
+      <Tab.Screen name= "UsadosHoje" component={UsadosHojeScreen}/>
+      <Tab.Screen name= "HitóricoTickets" component={HistoricoTicketsScreen}/>
     </Tab.Navigator>
   );
 }
