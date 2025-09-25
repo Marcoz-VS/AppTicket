@@ -1,7 +1,11 @@
-import { SafeAreaView } from "react-native";
+/*import { SafeAreaView } from "react-native";
 import {View, Text, StyleSheet, Alert} from "react-native"
 import { useSelector } from 'react-redux';
 import CustomButton from "../components/CustomButton";
+
+
+  
+
 
 export default function HomeAdminScreen({ navigation }) {
   const user = useSelector((state) => state.auth.user);
@@ -33,23 +37,6 @@ export default function HomeAdminScreen({ navigation }) {
             onPress={() => navigation.navigate("Cadastro")}
             />
 
-            <CustomButton
-            title={"Ver Tickets dos Alunos"}
-            style={styles.button}
-            onPress={() => navigation.navigate("AlunosTickets")}
-            />
-
-            <CustomButton
-            title={"Ver Historico dos Tickets"}
-            style={styles.button}
-            onPress={() => navigation.navigate("HistoricoTickets")}
-            />
-
-            <CustomButton
-            title={"Resetar Tickets"}
-            style={styles.button}
-            onPress={handleResetTickets}
-            />
         </SafeAreaView>
     );
 }
@@ -80,4 +67,7 @@ const styles= StyleSheet.create({
         fontSize:18,
         fontWeight:'bold'
     },
-});
+    container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+    title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
+    error: { color: 'red', marginBottom: 10 },
+});*/

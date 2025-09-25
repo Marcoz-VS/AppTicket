@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSelector } from 'react-redux';
 
 const validationSchema = Yup.object().shape({
   nome: Yup.string().min(3).max(50).required('Nome é obrigatório'),
@@ -14,7 +15,8 @@ const validationSchema = Yup.object().shape({
   curso: Yup.string().min(3).max(50).required('Curso é obrigatório'),
 });
 
-export default function CadastroScreen() {
+export default function CadastroScreen({navigation}) {
+  const user = useSelector((state) => state.auth.user);
   const [alunos, setAlunos] = useState([]);
 
   useEffect(() => {
@@ -46,10 +48,17 @@ export default function CadastroScreen() {
     resetForm();
   };
 
-  return (
+  return (<>
+    <SafeAreaView>
     <View style={styles.container}>
+      <Text>
+        Bem-Vindo {user.usuario}!
+      </Text>
+      <Text>
+        SENAI Palhoça
+      </Text>
+       
       <Text style={styles.title}>Cadastro de Alunos</Text>
-
       <Formik
         initialValues={{ nome: '', matricula: '', curso: '' }}
         validationSchema={validationSchema}
@@ -84,6 +93,11 @@ export default function CadastroScreen() {
         )}
       </Formik>
     </View>
+   
+
+    </SafeAreaView>
+    </>
+
   );
 }
 

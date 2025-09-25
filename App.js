@@ -27,8 +27,11 @@ function TabAlunoNavigator({ navigation }) {
 function TabAdminNavigator({ navigation }) {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="AdminDashboard" component={HomeAdminScreen} />
       <Tab.Screen name="Cadastro" component={CadastroScreen} />
+      {/* <Tab.Screen name="AdminDashboard" component={HomeAdminScreen} /> */}
+      <Tab.Screen name= "Tickets Alunos" component={CadastroScreen}/>
+      <Tab.Screen name= "Hitórico Tickets" component={CadastroScreen}/>
+      <Tab.Screen name= "Resetar" component={CadastroScreen}/>
     </Tab.Navigator>
   );
 }
