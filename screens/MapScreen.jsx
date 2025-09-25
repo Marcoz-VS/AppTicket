@@ -2,6 +2,7 @@ import * as Location from 'expo-location';
 import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, Circle } from 'react-native-maps';
 import { useEffect, useState } from 'react';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const ESCOLA_COORDS = {
     latitude: -27.618337,
@@ -34,13 +35,13 @@ export default function MapScreen() {
                 console.error("Error getting current position:", error);
                 setStatus("Erro ao obter a localização");
             }
+
+            getLocation();
         });
     }, []);
     const getLocation = async () => {
-         console.log("Getting current position...");
             try {
                 let location = await Location.getCurrentPositionAsync({});
-                console.log("Current position:", location);
                 setLocation(location.coords);
                 updateStatus(location.coords);
             } catch (error) {
@@ -76,14 +77,10 @@ export default function MapScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Button title="Atualizar Localização" onPress={()=>getLocation()}/>
             <Text style={styles.title}>
                 Mapa de Acesso Escolar
             </Text>
-            <Text>
-                {location ? `Latitude: ${location.latitude}, Longitude: ${location.longitude}` : 'Obtendo localização...'}
-            </Text>
-
+            <Button title="Atualizar Localização" onPress={getLocation} />
             <MapView
                 style={styles.map}
                 initialRegion={{
