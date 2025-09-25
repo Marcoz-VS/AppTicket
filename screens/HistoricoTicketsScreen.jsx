@@ -14,15 +14,23 @@ export default function HistoricoTicketsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Histórico de Tickets</Text>
-      <FlatList
-        data={historico}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <Text style={styles.item}>
-            {item.nome} - {item.curso} - {item.data} - {item.horaUso}
-          </Text>
-        )}
-      />
+
+      {historico.length === 0 ? (
+        <Text style={styles.empty}>Nenhum ticket usado em dias anteriores.</Text>
+      ) : (
+        <FlatList
+          data={[...historico].reverse()} // tickets mais recentes primeiro
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <Text style={styles.item}>
+              <Text style={styles.nome}>{item.nome}</Text> - {item.curso} {"\n"}
+              <Text style={styles.data}>
+                Data: {item.data} - Hora: {item.horaUso}
+              </Text>
+            </Text>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -30,5 +38,8 @@ export default function HistoricoTicketsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 15 },
-  item: { fontSize: 16, marginBottom: 8 },
+  item: { fontSize: 16, marginBottom: 12, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: '#ddd' },
+  nome: { fontWeight: 'bold' },
+  data: { fontSize: 14, color: '#555' },
+  empty: { fontSize: 16, color: '#777', textAlign: 'center', marginTop: 20 },
 });

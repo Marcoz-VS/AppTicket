@@ -5,6 +5,8 @@ const STORAGE_KEY = 'tickets';
 
 const initialState = {
   tickets: [],
+  ticketsHoje: [],
+  historico: [],
   loading: false,
   error: null,
 };
@@ -35,13 +37,12 @@ export const saveTickets = createAsyncThunk(
 
 export const registrarTicket = createAsyncThunk(
   'tickets/registrarTicket',
-  async (aluno, { dispatch, getState }) => {
+  async (aluno, { dispatch }) => {
     try {
       const result = await dispatch(loadTickets());
       const tickets = result.payload || [];
       const hoje = new Date().toISOString().split('T')[0];
-      
-      // Check if user already has a ticket today (used or unused)
+
       const ticketExistente = tickets.find(
         t => t.matricula === aluno.matricula && t.data === hoje
       );
@@ -50,11 +51,9 @@ export const registrarTicket = createAsyncThunk(
         if (ticketExistente.usado) {
           return { sucesso: false, mensagem: "Ticket já foi utilizado hoje!" };
         }
-        // Return existing unused ticket
         return { sucesso: true, mensagem: "Já possui um ticket hoje!", ticket: ticketExistente };
       }
 
-      // Create new ticket
       const novoTicket = {
         matricula: aluno.matricula,
         nome: aluno.nome,
@@ -81,13 +80,12 @@ export const registrarTicket = createAsyncThunk(
 
 export const usarTicket = createAsyncThunk(
   'tickets/usarTicket',
-  async (matricula, { dispatch, getState }) => {
+  async (matricula, { dispatch }) => {
     try {
       const result = await dispatch(loadTickets());
       const tickets = result.payload || [];
       const hoje = new Date().toISOString().split('T')[0];
 
-      // Find user's ticket for today
       const ticket = tickets.find(
         t => t.matricula === matricula && t.data === hoje
       );
@@ -100,7 +98,6 @@ export const usarTicket = createAsyncThunk(
         return { sucesso: false, mensagem: "Ticket já foi utilizado hoje!" };
       }
 
-      // Update ticket
       const updatedTicket = {
         ...ticket,
         usado: true,
@@ -110,7 +107,6 @@ export const usarTicket = createAsyncThunk(
         })
       };
 
-      // Update tickets array
       const updatedTickets = tickets.map(t =>
         t.matricula === matricula && t.data === hoje ? updatedTicket : t
       );
@@ -130,20 +126,21 @@ export const usarTicket = createAsyncThunk(
 
 export const resetarTickets = createAsyncThunk(
   'tickets/resetarTickets',
-  async () => {
-    await saveTickets([]);
+  async (_, { dispatch }) => {
+    await dispatch(saveTickets([]));
     return { sucesso: true, mensagem: "Tickets resetados com sucesso!" };
   }
 );
 
 export const limparTicketsAntigos = createAsyncThunk(
   'tickets/limparTicketsAntigos',
-  async () => {
-    const tickets = await loadTickets();
+  async (_, { dispatch }) => {
+    const result = await dispatch(loadTickets());
+    const tickets = result.payload || [];
     const hoje = new Date().toISOString().split("T")[0];
 
     const filtrados = tickets.filter((t) => t.data === hoje);
-    await saveTickets(filtrados);
+    await dispatch(saveTickets(filtrados));
 
     return { sucesso: true, mensagem: "Tickets antigos limpos com sucesso!", tickets: filtrados };
   }
@@ -151,8 +148,9 @@ export const limparTicketsAntigos = createAsyncThunk(
 
 export const getTicketsHoje = createAsyncThunk(
   'tickets/getTicketsHoje',
-  async () => {
-    const tickets = await loadTickets();
+  async (_, { dispatch }) => {
+    const result = await dispatch(loadTickets());
+    const tickets = result.payload || [];
     const hoje = new Date().toISOString().split("T")[0];
 
     return tickets.filter((t) => t.data === hoje && t.usado);
@@ -161,8 +159,9 @@ export const getTicketsHoje = createAsyncThunk(
 
 export const getHistoricoTickets = createAsyncThunk(
   'tickets/getHistoricoTickets',
-  async () => {
-    const tickets = await loadTickets();
+  async (_, { dispatch }) => {
+    const result = await dispatch(loadTickets());
+    const tickets = result.payload || [];
     const hoje = new Date().toISOString().split("T")[0];
 
     return tickets.filter((t) => t.data !== hoje && t.usado);
@@ -194,39 +193,15 @@ export const ticketSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      .addCase(saveTickets.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(saveTickets.fulfilled, (state, action) => {
-        state.loading = false;
         state.tickets = action.payload;
       })
-      .addCase(saveTickets.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      .addCase(registrarTicket.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(registrarTicket.fulfilled, (state, action) => {
-        state.loading = false;
         if (action.payload.sucesso && !action.payload.mensagem.includes("Já possui")) {
           state.tickets.push(action.payload.ticket);
         }
-        state.error = action.payload.sucesso ? null : action.payload.mensagem;
-      })
-      .addCase(registrarTicket.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      .addCase(usarTicket.pending, (state) => {
-        state.loading = true;
-        state.error = null;
       })
       .addCase(usarTicket.fulfilled, (state, action) => {
-        state.loading = false;
         if (action.payload.sucesso) {
           const index = state.tickets.findIndex(
             t => t.matricula === action.payload.ticket.matricula && 
@@ -236,15 +211,15 @@ export const ticketSlice = createSlice({
             state.tickets[index] = action.payload.ticket;
           }
         }
-        state.error = action.payload.sucesso ? null : action.payload.mensagem;
       })
-      .addCase(usarTicket.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
+      .addCase(getTicketsHoje.fulfilled, (state, action) => {
+        state.ticketsHoje = action.payload;
+      })
+      .addCase(getHistoricoTickets.fulfilled, (state, action) => {
+        state.historico = action.payload;
       });
   },
 });
 
 export const { addTicket, removeTicket } = ticketSlice.actions;
-
 export default ticketSlice.reducer;
