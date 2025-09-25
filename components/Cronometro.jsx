@@ -19,7 +19,7 @@ const Cronometro = ({ TempoInicial, shouldStart, onTimerEnd }) => {
         } else if (!shouldStart && iniciado) {
         resetarCronometro();
         }
-    }, [shouldStart, iniciado, TempoInicial]);
+    }, [shouldStart]);
 
 
     useEffect(() => {
@@ -27,12 +27,10 @@ const Cronometro = ({ TempoInicial, shouldStart, onTimerEnd }) => {
 
         if (iniciado && horaInicio) {
             const sincronizar = () => {
-            const agora = new Date();
-            const tempoPassado = Math.floor((agora - horaInicio) / 1000);
-            const tempoRestante = Math.max(0, TempoInicial - tempoPassado);
-
+                const agora = new Date();
+                const tempoPassado = Math.floor((agora - horaInicio) / 1000);
+                const tempoRestante = Math.max(0, TempoInicial - tempoPassado);
             setTempoDecorrido(tempoRestante);
-
             if (tempoRestante <= 0) {
             resetarCronometro();
             if (onTimerEnd) onTimerEnd();
@@ -44,9 +42,9 @@ const Cronometro = ({ TempoInicial, shouldStart, onTimerEnd }) => {
         }
 
         return () => {
-        if (intervalo) clearInterval(intervalo);
+        intervalo && clearInterval(intervalo);
         };
-    }, [iniciado, horaInicio, TempoInicial, onTimerEnd]);
+    }, [iniciado, horaInicio]);
 
     const formatarTempo = (segundos) => {
         const minutos = Math.floor(segundos / 60);
@@ -60,7 +58,7 @@ const Cronometro = ({ TempoInicial, shouldStart, onTimerEnd }) => {
             {formatarTempo(tempoDecorrido)}
         </Text>
         <Text style={{ textAlign: 'center', fontSize: 12, color: 'gray' }}>
-            {iniciado ? 'Intervalo em andamento' : 'Aguardando 09:20'}
+            {iniciado ? 'Intervalo em andamento' : 'Aguarde o início do intervalo'}
         </Text>
         </View>
     );

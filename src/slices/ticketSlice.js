@@ -36,26 +36,36 @@ export const saveTickets = createAsyncThunk(
 
 export const registrarTicket = createAsyncThunk(
   'tickets/registrarTicket',
-  async (aluno, { dispatch }) => {
+  async (aluno, { dispatch, getState }) => {
     try {
       const result = await dispatch(loadTickets());
       const tickets = result.payload || [];
-
       const hoje = new Date().toISOString().split('T')[0];
-      const horaAgora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      
+      // Check if user already has a ticket today (used or unused)
+      const ticketExistente = tickets.find(
+        t => t.matricula === aluno.matricula && t.data === hoje
+      );
 
-      const jaTem = tickets.find((t) => t.matricula === aluno.matricula && t.data === hoje);
-      if (jaTem) {
-        return { sucesso: false, mensagem: "Já pegou um ticket hoje!" };
+      if (ticketExistente) {
+        if (ticketExistente.usado) {
+          return { sucesso: false, mensagem: "Ticket já foi utilizado hoje!" };
+        }
+        // Return existing unused ticket
+        return { sucesso: true, mensagem: "Já possui um ticket hoje!", ticket: ticketExistente };
       }
 
+      // Create new ticket
       const novoTicket = {
         matricula: aluno.matricula,
         nome: aluno.nome,
         curso: aluno.curso,
         local: aluno.local,
         data: hoje,
-        horaCriacao: horaAgora,
+        horaCriacao: new Date().toLocaleTimeString('pt-BR', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
         usado: false,
         horaUso: null,
       };
@@ -72,26 +82,47 @@ export const registrarTicket = createAsyncThunk(
 
 export const usarTicket = createAsyncThunk(
   'tickets/usarTicket',
-  async (matricula, { dispatch }) => {
+  async (matricula, { dispatch, getState }) => {
     try {
       const result = await dispatch(loadTickets());
       const tickets = result.payload || [];
+      const hoje = new Date().toISOString().split('T')[0];
 
-      const hoje = new Date().toISOString().split("T")[0];
-      const horaAgora = new Date().toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
+      // Find user's ticket for today
+      const ticket = tickets.find(
+        t => t.matricula === matricula && t.data === hoje
+      );
 
-      const ticketIndex = tickets.findIndex((t) => t.matricula === matricula && t.data === hoje && !t.usado);
-
-      if (ticketIndex === -1) {
+      if (!ticket) {
         return { sucesso: false, mensagem: "Nenhum ticket encontrado para hoje." };
       }
 
-      const updatedTicket = { ...tickets[ticketIndex], usado: true, horaUso: horaAgora };
-      tickets[ticketIndex] = updatedTicket;
+      if (ticket.usado) {
+        return { sucesso: false, mensagem: "Ticket já foi utilizado hoje!" };
+      }
 
-      await dispatch(saveTickets(tickets));
+      // Update ticket
+      const updatedTicket = {
+        ...ticket,
+        usado: true,
+        horaUso: new Date().toLocaleTimeString('pt-BR', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        })
+      };
 
-      return { sucesso: true, mensagem: "Ticket usado com sucesso!", ticket: updatedTicket };
+      // Update tickets array
+      const updatedTickets = tickets.map(t =>
+        t.matricula === matricula && t.data === hoje ? updatedTicket : t
+      );
+
+      await dispatch(saveTickets(updatedTickets));
+
+      return { 
+        sucesso: true, 
+        mensagem: "Ticket usado com sucesso!", 
+        ticket: updatedTicket 
+      };
     } catch (error) {
       return { sucesso: false, mensagem: "Erro ao usar ticket: " + error.message };
     }
@@ -182,7 +213,7 @@ export const ticketSlice = createSlice({
       })
       .addCase(registrarTicket.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload.sucesso) {
+        if (action.payload.sucesso && !action.payload.mensagem.includes("Já possui")) {
           state.tickets.push(action.payload.ticket);
         }
         state.error = action.payload.sucesso ? null : action.payload.mensagem;
@@ -198,7 +229,10 @@ export const ticketSlice = createSlice({
       .addCase(usarTicket.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload.sucesso) {
-          const index = state.tickets.findIndex(t => t.matricula === action.payload.ticket.matricula && t.data === action.payload.ticket.data);
+          const index = state.tickets.findIndex(
+            t => t.matricula === action.payload.ticket.matricula && 
+                t.data === action.payload.ticket.data
+          );
           if (index !== -1) {
             state.tickets[index] = action.payload.ticket;
           }
