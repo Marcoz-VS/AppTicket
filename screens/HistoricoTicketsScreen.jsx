@@ -19,7 +19,7 @@ export default function HistoricoTicketsScreen() {
         <Text style={styles.empty}>Nenhum ticket usado em dias anteriores.</Text>
       ) : (
         <FlatList
-          data={[...historico].reverse()} // tickets mais recentes primeiro
+          data={[...historico].reverse()}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <Text style={styles.item}>
