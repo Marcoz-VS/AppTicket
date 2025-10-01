@@ -125,7 +125,7 @@ export default function HomeAlunoScreen({ navigation }) {
           title="Logout"
           onPress={() => {
             dispatch(logout());
-            navigation.navigate('Login');
+            navigation.goBack();
           }}
         />
       </View>
