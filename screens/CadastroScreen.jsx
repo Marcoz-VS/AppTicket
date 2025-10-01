@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { useSelector } from 'react-redux';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,6 +18,7 @@ const validationSchema = Yup.object().shape({
 
 export default function CadastroScreen() {
   const [alunos, setAlunos] = useState([]);
+  const admin = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const carregarAlunos = async () => {
@@ -47,7 +49,8 @@ export default function CadastroScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Bem-Vindo</Text>
-      <Text style={styles.subtitle}>Usuário</Text>
+      <Text style={styles.subtitle}>{admin?.usuario || 'Administrador'}</Text>
+      <Text style={styles.cargo}>{admin?.cargo || ''}</Text>
       <Text style={styles.title}>Cadastrar novo usuário</Text>
 
       <Formik
@@ -102,6 +105,11 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#777',
+  },
+  cargo: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
