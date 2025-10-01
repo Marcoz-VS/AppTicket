@@ -42,7 +42,7 @@ npm install
 
 3. Inicie o projeto
 ```bash
-expo start
+npm start
 ```
 
 ## 🛠️ Construído com
