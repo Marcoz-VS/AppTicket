@@ -31,12 +31,12 @@ MerendaGo é um aplicativo móvel desenvolvido em React Native que gerencia tick
 
 1. Clone o repositório
 ```bash
-git clone https://github.com/seu-usuario/MerendaGo.git
+git clone https://github.com/Marcoz-VS/AppTicket.git
 ```
 
 2. Instale as dependências
 ```bash
-cd MerendaGo
+cd AppTicket
 npm install
 ```
 
@@ -81,17 +81,10 @@ O projeto utiliza as seguintes configurações:
 
 ## 👥 Autores
 
-* **Seu Nome** - *Trabalho Inicial* - [SeuUsuario](https://github.com/SeuUsuario)
+* **Marcos**
+* **Fernanda**
+* **Isac**
 
 ## 📄 Licença
 
 Este projeto está sob a licença MIT - veja o arquivo [LICENSE.md](LICENSE.md) para detalhes
-
-## 🎁 Expressões de gratidão
-
-* Compartilhe este projeto 📢
-* Convide alguém da equipe para uma cerveja 🍺
-* Um agradecimento publicamente 🤓
-
----
-⌨️ com ❤️ por [Seu Nome](https://github.com/SeuUsuario) 😊
