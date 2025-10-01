@@ -23,18 +23,35 @@ export default function LoginScreen({ navigation }) {
   const [role, setRole] = useState('aluno');
 
   const handleAlunoSubmit = async (values) => {
-    const data = await AsyncStorage.getItem('alunos');
-    const alunos = data ? JSON.parse(data) : [];
+    try {
+      const asyncData = await AsyncStorage.getItem('alunos');
+      const asyncAlunos = asyncData ? JSON.parse(asyncData) : [];
+      const databaseAlunos = require('../database.json').alunos;
 
-    const alunoEncontrado = alunos.find(
-      (a) => a.matricula === values.matriculaCodigo
-    );
+      const alunoAsyncStorage = asyncAlunos.find(
+        (a) => a.matricula === values.matriculaCodigo
+      );
 
-    if (alunoEncontrado) {
-      dispatch(login({ user: alunoEncontrado, role: 'aluno' }));
-      navigation.navigate('HomeAluno');
-    } else {
-      Alert.alert('Erro', 'Matrícula não encontrada');
+      const alunoDatabase = databaseAlunos.find(
+        (a) => a.matricula === values.matriculaCodigo
+      );
+
+      if (alunoAsyncStorage || alunoDatabase) {
+        const alunoEncontrado = alunoAsyncStorage || alunoDatabase;
+
+        if (!alunoAsyncStorage && alunoDatabase) {
+          const updatedAlunos = [...asyncAlunos, alunoDatabase];
+          await AsyncStorage.setItem('alunos', JSON.stringify(updatedAlunos));
+        }
+
+        dispatch(login({ user: alunoEncontrado, role: 'aluno' }));
+        navigation.navigate('HomeAluno');
+      } else {
+        Alert.alert('Erro', 'Matrícula não encontrada');
+      }
+    } catch (error) {
+      console.error('Erro ao verificar matrícula:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao verificar a matrícula');
     }
   };
 
