@@ -15,7 +15,7 @@ const ESCOLA_COORDS = {
 const RAIO = 500;
 
 function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3; // metros
+  const R = 6371e3;
   const toRad = (v) => (v * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
@@ -50,7 +50,6 @@ export default function HomeAlunoScreen({ navigation }) {
       return;
     }
 
-    // NOVA LÓGICA DE HORÁRIO
     const turno = user?.turno || 'manha';
     const schedule = TurnoSchedules[turno];
 
@@ -113,14 +112,14 @@ export default function HomeAlunoScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Bem-vindo, {user?.nome}!</Text>
+      <Text style={styles.title}>Bem-vindo {user?.nome}!</Text>
       <Text style={styles.sub}>{user?.turma ? `Turma: ${user.turma}` : ''}</Text>
       <Text style={styles.sub}>{user?.turno ? `Turno: ${user.turno}` : ''}</Text>
       <Text style={styles.status}>{status}</Text>
       {podePegar && (
         <CustomButton title="Pegar Ticket" onPress={() => navigation.navigate('TicketScreen')} />
       )}
-      <CustomButton title="Sair" onPress={() => dispatch(logout())} />
+      <CustomButton title="Sair" onPress={() => navigation.goBack()} />
     </SafeAreaView>
   );
 }

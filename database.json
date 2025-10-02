@@ -4,31 +4,41 @@
             "nome": "João Silva",
             "matricula": "123",
             "curso": "Desenvolvimento de Sistemas",
-            "local": "SENAI Palhoça"
+            "local": "SENAI Palhoça",
+            "turma": "3A",
+            "turno": "manha"
         },
         {
             "nome": "Maria Oliveira",
             "matricula": "2034343468",
             "curso": "Mecanica",
-            "local": "SENAI Palhoça"
+            "local": "SENAI Palhoça",
+            "turma": "2B",
+            "turno": "tarde"
         },
         {
             "nome": "Pedro Santos",
             "matricula": "2034343469",
             "curso": "Eletromecânica",
-            "local": "SENAI Palhoça"
+            "local": "SENAI Palhoça",
+            "turma": "1A",
+            "turno": "noite"
         },
         {
             "nome": "Ana Costa",
             "matricula": "2034343470",
             "curso": "Automação Industrial",
-            "local": "SENAI Palhoça"
+            "local": "SENAI Palhoça",
+            "turma": "2C",
+            "turno": "manha"
         },
         {
             "nome": "Lucas Pereira",
             "matricula": "2034343471",
             "curso": "Redes de Computadores",
-            "local": "SENAI Palhoça"
+            "local": "SENAI Palhoça",
+            "turma": "1B",
+            "turno": "tarde"
         }
     ],
     "admins": [{
