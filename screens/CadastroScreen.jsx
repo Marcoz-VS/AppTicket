@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Picker } from '@react-native-picker/picker';
 
 const validationSchema = Yup.object().shape({
   nome: Yup.string().min(3).max(50).required('Nome é obrigatório'),
@@ -14,6 +14,10 @@ const validationSchema = Yup.object().shape({
     .matches(/^[0-9]+$/, 'A matrícula deve conter apenas números')
     .min(3).max(10).required('Matrícula é obrigatória'),
   curso: Yup.string().min(3).max(50).required('Curso é obrigatório'),
+  turno: Yup.string()
+    .oneOf(['manha', 'tarde', 'noite'], 'Turno inválido')
+    .required('Turno é obrigatório'),
+  turma: Yup.string().min(1).max(10).required('Turma é obrigatória'),
 });
 
 export default function CadastroScreen() {
@@ -27,18 +31,18 @@ export default function CadastroScreen() {
     };
     carregarAlunos();
   }, []);
+
   const salvarAlunos = async (lista) => {
     await AsyncStorage.setItem('alunos', JSON.stringify(lista));
   };
 
   const handleCadastro = (values, { resetForm }) => {
-    const { nome, matricula, curso } = values;
-
+    const { nome, matricula, curso, turma, turno } = values;
     if (alunos.find((a) => a.matricula === matricula)) {
       Alert.alert('Erro', 'Já existe aluno com essa matrícula');
       return;
     }
-    const novoAluno = { nome, matricula, curso, local: 'SENAI Palhoça' };
+    const novoAluno = { nome, matricula, curso, local: 'SENAI Palhoça', turma, turno };
     const novaLista = [...alunos, novoAluno];
     setAlunos(novaLista);
     salvarAlunos(novaLista);
@@ -52,13 +56,12 @@ export default function CadastroScreen() {
       <Text style={styles.subtitle}>{admin?.usuario || 'Administrador'}</Text>
       <Text style={styles.cargo}>{admin?.cargo || ''}</Text>
       <Text style={styles.title}>Cadastrar novo usuário</Text>
-
       <Formik
-        initialValues={{ nome: '', matricula: '', curso: '' }}
+        initialValues={{ nome: '', matricula: '', curso: '', turma: '', turno: 'manha' }}
         validationSchema={validationSchema}
         onSubmit={handleCadastro}
       >
-        {({ handleChange, handleSubmit, values, errors, touched }) => (
+        {({ handleChange, handleSubmit, values, errors, touched, setFieldValue }) => (
           <View>
             <CustomInput
               placeholder="Nome do Aluno"
@@ -82,6 +85,25 @@ export default function CadastroScreen() {
             />
             {touched.curso && errors.curso && <Text style={styles.error}>{errors.curso}</Text>}
 
+            <CustomInput
+              placeholder="Turma (ex: 3A)"
+              value={values.turma}
+              onChangeText={handleChange('turma')}
+            />
+            {touched.turma && errors.turma && <Text style={styles.error}>{errors.turma}</Text>}
+
+            <Text style={{ marginTop: 8 }}>Turno</Text>
+            <Picker
+              selectedValue={values.turno}
+              onValueChange={v => setFieldValue('turno', v)}
+              style={{ marginBottom: 12 }}
+            >
+              <Picker.Item label="Manhã" value="manha" />
+              <Picker.Item label="Tarde" value="tarde" />
+              <Picker.Item label="Noite" value="noite" />
+            </Picker>
+            {touched.turno && errors.turno && <Text style={styles.error}>{errors.turno}</Text>}
+
             <CustomButton title="Cadastrar" onPress={handleSubmit} />
           </View>
         )}
@@ -91,60 +113,9 @@ export default function CadastroScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
-    marginVertical:15,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#777',
-  },
-  cargo: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    },
-  error: {
-    color: 'red',
-    fontSize: 12,
-    marginBottom: 10,
-  },
-  card: {
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-  },
-  CustomButton: {
-    backgroundColor: "black",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 20,
-    marginVertical: 10,
-  },
-  CustomInput: {
-    borderWidth: 1,
-    borderColor: 'black',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
-    marginVertical: 5,
-    fontSize: 16,
-  },
+  container: { flex: 1, padding: 24, backgroundColor: '#fff' },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10 },
+  subtitle: { fontSize: 18, color: '#333', marginBottom: 4 },
+  cargo: { fontSize: 16, color: '#555', marginBottom: 16 },
+  error: { color: 'red', marginBottom: 8, marginLeft: 4 },
 });
