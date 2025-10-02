@@ -1,25 +1,23 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
+import { TurnoSchedules } from '../src/turnos';
+import { calcularDuracao, estaNoIntervaloPorHHMM, hhmmToMinutes } from '../src/timeUtils';
 
 export default function TimerScreen() {
+  const user = useSelector(state => state.auth.user);
+  const turno = user?.turno || 'manha';
+  const { inicio, fim } = TurnoSchedules[turno];
+  const tempoIntervalo = calcularDuracao(inicio, fim);
   const [timeLeft, setTimeLeft] = useState('Aguardando intervalo');
-  const startHour = 9 * 60 + 20;
-  const endHour = 9 * 60 + 35
 
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
-      const localHours = now.getHours();
-      const localMinutes = now.getMinutes();
-      const localSeconds = now.getSeconds();
-      const currentMinutes = localHours * 60 + localMinutes;
-
-      if (currentMinutes >= startHour && currentMinutes < endHour) {
-        const totalSeconds = (endHour - startHour) * 60;
-        const elapsedMinutes = currentMinutes - startHour;
-        const elapsedSeconds = elapsedMinutes * 60 + localSeconds;
-        const remainingSeconds = totalSeconds - elapsedSeconds;
-
+      if (estaNoIntervaloPorHHMM(inicio, fim, now)) {
+        const totalSeconds = tempoIntervalo;
+        const secondsNow = (now.getHours() * 60 + now.getMinutes() - hhmmToMinutes(inicio)) * 60 + now.getSeconds();
+        const remainingSeconds = totalSeconds - secondsNow;
         if (remainingSeconds <= 0) {
           setTimeLeft('Aguardando intervalo');
         } else {
@@ -31,22 +29,21 @@ export default function TimerScreen() {
         setTimeLeft('Aguardando intervalo');
       }
     }, 1000);
-
     return () => clearInterval(interval);
-  }, []);
+  }, [inicio, fim, tempoIntervalo]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Nome da Instituição</Text>
       <View style={styles.card}>
         <Text style={styles.intervalo}>Intervalo</Text>
-        <Text style={styles.timeRange}>09:20 - 09:35</Text>
+        <Text style={styles.timeRange}>{inicio} - {fim}</Text>
         <Text style={styles.timer}>{timeLeft}</Text>
         <Text style={styles.label}>Tempo Restante</Text>
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
