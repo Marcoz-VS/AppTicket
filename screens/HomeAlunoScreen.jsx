@@ -5,14 +5,29 @@ import * as Location from 'expo-location';
 import CustomButton from '../components/CustomButton';
 import { logout } from '../src/slices/authSlice';
 import { loadTickets } from '../src/slices/ticketSlice';
+import { TurnoSchedules } from '../src/turnos';
+import { estaNoIntervaloPorHHMM } from '../src/timeUtils';
 
 const ESCOLA_COORDS = {
   latitude: -27.618337,
   longitude: -48.662516,
 };
 const RAIO = 500;
-const HORA_INICIO = 9 * 60 + 20;
-const HORA_FIM = 9 * 60 + 35;
+
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3; // metros
+  const toRad = (v) => (v * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 export default function HomeAlunoScreen({ navigation }) {
   const user = useSelector((state) => state.auth.user);
@@ -21,15 +36,6 @@ export default function HomeAlunoScreen({ navigation }) {
   const [status, setStatus] = useState('Carregando...');
   const [podePegar, setPodePegar] = useState(false);
   const [coords, setCoords] = useState(null);
-
-  const verificarHorario = () => {
-    const agora = new Date();
-    const localHours = agora.getHours();
-    const localMinutes = agora.getMinutes();
-    const minutosDoDia = localHours * 60 + localMinutes;
-    console.log('Minutos do dia:', minutosDoDia, 'Horário atual:', agora.toLocaleTimeString());
-    return minutosDoDia >= HORA_INICIO && minutosDoDia < HORA_FIM;
-  };
 
   const validarTicket = (coords) => {
     const agora = new Date();
@@ -44,8 +50,12 @@ export default function HomeAlunoScreen({ navigation }) {
       return;
     }
 
-    if (!verificarHorario()) {
-      setStatus('Fora do horário do recreio');
+    // NOVA LÓGICA DE HORÁRIO
+    const turno = user?.turno || 'manha';
+    const schedule = TurnoSchedules[turno];
+
+    if (!estaNoIntervaloPorHHMM(schedule.inicio, schedule.fim)) {
+      setStatus(`Fora do horário (${schedule.inicio} - ${schedule.fim})`);
       setPodePegar(false);
       return;
     }
@@ -56,7 +66,6 @@ export default function HomeAlunoScreen({ navigation }) {
       ESCOLA_COORDS.latitude,
       ESCOLA_COORDS.longitude
     );
-    console.log('Distância:', distancia);
     if (distancia > RAIO) {
       setStatus('Fora da área da escola');
       setPodePegar(false);
@@ -84,11 +93,9 @@ export default function HomeAlunoScreen({ navigation }) {
           maximumAge: 0,
           timeout: 15000,
         });
-        console.log('Localização obtida:', loc.coords);
         setCoords(loc.coords);
         validarTicket(loc.coords);
       } catch (error) {
-        console.error('Erro ao obter localização:', error);
         setStatus('Erro ao obter localização');
         setPodePegar(false);
       }
@@ -101,53 +108,26 @@ export default function HomeAlunoScreen({ navigation }) {
         validarTicket(coords);
       }
     }, 60000);
-
     return () => clearInterval(intervalo);
-  }, [coords]);
+  }, [coords, tickets]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
-        <Text style={styles.title}>Olá, {user?.nome || 'Aluno'}</Text>
-        <Text style={styles.status}>{status}</Text>
-      </View>
-
-      <View>
-        <CustomButton
-          title="Pegar Ticket"
-          onPress={podePegar ? () => navigation.navigate('Ticket') : null}
-          disabled={!podePegar}
-        />
-      </View>
-
-      <View>
-        <CustomButton
-          title="Logout"
-          onPress={() => {
-            dispatch(logout());
-            navigation.goBack();
-          }}
-        />
-      </View>
+      <Text style={styles.title}>Bem-vindo, {user?.nome}!</Text>
+      <Text style={styles.sub}>{user?.turma ? `Turma: ${user.turma}` : ''}</Text>
+      <Text style={styles.sub}>{user?.turno ? `Turno: ${user.turno}` : ''}</Text>
+      <Text style={styles.status}>{status}</Text>
+      {podePegar && (
+        <CustomButton title="Pegar Ticket" onPress={() => navigation.navigate('TicketScreen')} />
+      )}
+      <CustomButton title="Sair" onPress={() => dispatch(logout())} />
     </SafeAreaView>
   );
 }
 
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3;
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 10 },
-  status: { fontSize: 16, marginBottom: 20 },
+  sub: { fontSize: 16, marginBottom: 4 },
+  status: { fontSize: 16, color: '#333', marginVertical: 12 },
 });
