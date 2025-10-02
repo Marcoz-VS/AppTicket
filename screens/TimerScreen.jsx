@@ -34,7 +34,7 @@ export default function TimerScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Nome da Instituição</Text>
+      <Text style={styles.title}>SENAI</Text>
       <View style={styles.card}>
         <Text style={styles.intervalo}>Intervalo</Text>
         <Text style={styles.timeRange}>{inicio} - {fim}</Text>
@@ -74,7 +74,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   timer: {
-    fontSize: 60,
+    fontSize: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    color: '#333',
     fontWeight: 'bold',
   },
   label: {

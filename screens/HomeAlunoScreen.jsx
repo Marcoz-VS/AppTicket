@@ -3,7 +3,6 @@ import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Location from 'expo-location';
 import CustomButton from '../components/CustomButton';
-import { logout } from '../src/slices/authSlice';
 import { loadTickets } from '../src/slices/ticketSlice';
 import { TurnoSchedules } from '../src/turnos';
 import { estaNoIntervaloPorHHMM } from '../src/timeUtils';
@@ -36,25 +35,11 @@ export default function HomeAlunoScreen({ navigation }) {
   const [status, setStatus] = useState('Carregando...');
   const [podePegar, setPodePegar] = useState(false);
   const [coords, setCoords] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date()); // Add this new state
 
   const validarTicket = (coords) => {
-    const agora = new Date();
-    const hoje = agora.toISOString().split('T')[0];
-
-    const ticketUsadoHoje = tickets.find(
-      (t) => t.matricula === user.matricula && t.data === hoje && t.usado
-    );
-    if (ticketUsadoHoje) {
-      setStatus('Já utilizou o ticket hoje');
-      setPodePegar(false);
-      return;
-    }
-
-    const turno = user?.turno || 'manha';
-    const schedule = TurnoSchedules[turno];
-
-    if (!estaNoIntervaloPorHHMM(schedule.inicio, schedule.fim)) {
-      setStatus(`Fora do horário (${schedule.inicio} - ${schedule.fim})`);
+    if (!coords) {
+      setStatus('Erro: GPS não disponível');
       setPodePegar(false);
       return;
     }
@@ -66,12 +51,32 @@ export default function HomeAlunoScreen({ navigation }) {
       ESCOLA_COORDS.longitude
     );
     if (distancia > RAIO) {
-      setStatus('Fora da área da escola');
+      setStatus('Localização inválida: Você precisa estar na escola');
       setPodePegar(false);
       return;
     }
 
-    setStatus('Pode pegar ticket');
+    const turno = user?.turno || 'manha';
+    const schedule = TurnoSchedules[turno];
+
+    if (!estaNoIntervaloPorHHMM(schedule.inicio, schedule.fim, currentTime)) { // Pass currentTime
+      setStatus(`Horário inválido: O intervalo é das ${schedule.inicio} às ${schedule.fim}`);
+      setPodePegar(false);
+      return;
+    }
+
+    const hoje = currentTime.toISOString().split('T')[0];
+
+    const ticketUsadoHoje = tickets.find(
+      (t) => t.matricula === user.matricula && t.data === hoje && t.usado
+    );
+    if (ticketUsadoHoje) {
+      setStatus('Ticket indisponível: Você já utilizou seu ticket hoje');
+      setPodePegar(false);
+      return;
+    }
+
+    setStatus('Tudo certo! Você pode pegar seu ticket');
     setPodePegar(true);
   };
 
@@ -93,7 +98,6 @@ export default function HomeAlunoScreen({ navigation }) {
           timeout: 15000,
         });
         setCoords(loc.coords);
-        validarTicket(loc.coords);
       } catch (error) {
         setStatus('Erro ao obter localização');
         setPodePegar(false);
@@ -102,13 +106,32 @@ export default function HomeAlunoScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    const intervalo = setInterval(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
       if (coords) {
         validarTicket(coords);
       }
-    }, 60000);
-    return () => clearInterval(intervalo);
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [coords, tickets]);
+
+  useEffect(() => {
+    const locationInterval = setInterval(async () => {
+      try {
+        let loc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+          maximumAge: 0,
+          timeout: 15000,
+        });
+        setCoords(loc.coords);
+      } catch (error) {
+        console.error('Error updating location:', error);
+      }
+    }, 60000);
+
+    return () => clearInterval(locationInterval);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
