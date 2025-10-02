@@ -117,7 +117,7 @@ export default function HomeAlunoScreen({ navigation }) {
       <Text style={styles.sub}>{user?.turno ? `Turno: ${user.turno}` : ''}</Text>
       <Text style={styles.status}>{status}</Text>
       {podePegar && (
-        <CustomButton title="Pegar Ticket" onPress={() => navigation.navigate('TicketScreen')} />
+        <CustomButton title="Pegar Ticket" onPress={() => navigation.navigate('Ticket')} />
       )}
       <CustomButton title="Sair" onPress={() => navigation.goBack()} />
     </SafeAreaView>
